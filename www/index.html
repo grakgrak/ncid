@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/purecss@3.0.0/build/pure-min.css"
+        integrity="sha384-X38yfunGUhNzHpBaEBsWLO+A0HDYOQi8ufWDkZ0k9e0eXz/tH3II7uKZ9msv++Ls" crossorigin="anonymous" />
+    <link rel="stylesheet" href="ncid.css" />
+
+    <script defer src="https://unpkg.com/alpinejs@3.10.5/dist/cdn.min.js"></script>
+    <script type="text/javascript" src="ncid.js"></script>
+
+    <title>NCID</title>
+    <link rel="icon" href="favicon.png">
+</head>
+
+<body x-data="ncidData">
+    <div id="layout" class="pure-g">
+        <div class="pure-u-4-5 header">
+            <div x-text="timestamp"></div>
+        </div>
+        <div class="pure-u-1-5 header">
+            <a href="https://my.bt.com/s/apps/appsmybt/#/home" target="bt">BT call protect</a>
+        </div>
+
+        <div class="pure-u-1 main">
+            <div class="pure-u-3-4 vscroll">
+                <table class="pure-table-striped">
+                    <tbody>
+                        <tr>
+                            <th style="width: 90px"></th>
+                            <th>Date</th>
+                            <th>Time</th>
+                            <th>Number</th>
+                            <th>Alias</th>
+                        </tr>
+                        <template x-for="item in ncid">
+                            <tr>
+                                <td>
+                                    <button class="pure-button button-success" @click="alias(item)">Edit</button>
+                                    <button class="pure-button button-success" @click="info(item)">Info</button>
+                                </td>
+                                <td class="text" x-text="item.DATE"></td>
+                                <td class="text" x-text="item.TIME"></td>
+                                <td class="text" x-html="getLink(item)"></td>
+                                <td :class="item.NAME === 'NO NAME' ? 'noname' : 'text'" x-text="item.NAME"></td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pure-u-1-4 vscroll">
+                <div class="pure-g buttons">
+                    <!-- <button x-show="open" class="pure-button button-secondary" @click="reloadServer">Clear</button> -->
+                    <button class="pure-u-1-2 pure-button button-secondary" @click="rereadServer">Reread</button>
+                    <button class="pure-u-1-2 pure-button button-warning" @click="reloadServer">Reload</button>
+                    <!-- <button class="pure-u-1-2 pure-button button-warning" @click="requestUpdates">Request Updates</button>
+                    <button class="pure-u-1-2 pure-button button-warning" @click="acceptLogs">Accept Logs</button> -->
+                    <button class="pure-u-1 pure-button button-warning" @click="test">Test</button>
+                </div>
+                <table class="pure-table otherTable">
+                    <tbody>
+                        <template x-for="item in ncidLog">
+                            <tr>
+                                <td class="text" x-text="item.Topic"></td>
+                            </tr>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <dialog x-ref="modal" class="modal">
+            <form class="pure-form-stacked" method="dialog">
+                <label for="alias">Enter new Alias</label>
+                <input x-model="aliasName" type="text" id="alias" placeholder="Alias" />
+                <button type="submit" class="pure-button button-primary" @click="saveAlias()">Save Alias</button>
+                <button type="submit" class="pure-button button-primary" @click="saveBlacklist()">Save
+                    Blacklist</button>
+            </form>
+        </dialog>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,133 @@
+body {
+    margin: 0;
+    font-family: 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-color: #DDE2EA;
+    padding: 12px;
+}
+
+.pure-g > button {
+    margin-bottom: 4px;
+}
+* {
+    box-sizing: border-box;
+}
+
+.button-success,
+.button-error,
+.button-warning,
+.button-secondary {
+    color: white;
+    border-radius: 5px;
+    padding: 4px 8px;
+    font-size: 80%;
+}
+
+.button-success {
+    background: rgb(28, 184, 65);
+    /* this is a green */
+}
+
+.button-error {
+    background: rgb(202, 60, 60);
+    /* this is a maroon */
+}
+
+.button-warning {
+    background: rgb(223, 117, 20);
+    /* this is an orange */
+}
+
+.button-secondary {
+    background: rgb(66, 184, 221);
+    /* this is a light blue */
+}
+
+.buttons {
+    padding: 4px;
+}
+
+.otherTable td {
+    font-size: small;
+    padding: 4px 8px;
+}
+
+.text {
+    font-size: small;
+    font-weight: 600;
+    padding: 4px 8px;
+}
+
+.noname {
+    font-size: small;
+    font-weight: 600;
+    padding: 4px 8px;
+    color: darkred;
+}
+
+.wrapper {
+    padding: 3rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.header {
+    border-radius: 5pt;
+    background-color: silver;
+    padding: 16px;
+    margin-bottom: 4px;
+}
+
+.main {
+    display: flex;
+    flex-direction: row;
+}
+
+.vscroll {
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 90px);
+}
+
+.modal {
+    border-radius: 5pt;
+}
+
+.scrollbar
+{
+	margin-left: 30px;
+	float: left;
+	height: 300px;
+	width: 65px;
+	background: #F5F5F5;
+	overflow-y: scroll;
+	margin-bottom: 25px;
+}
+
+::-webkit-scrollbar-track
+{
+	/* -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3); */
+	background-color: rgb(192, 192, 192);
+	border-radius: 10px;
+}
+
+::-webkit-scrollbar
+{
+	width: 10px;
+	background-color: rgb(222, 226, 234);
+}
+
+::-webkit-scrollbar-thumb
+{
+	border-radius: 10px;
+    background-color: rgb(104, 101, 101);
+    /* background-image: -webkit-gradient(linear,
+    left bottom,
+    left top,
+    color-stop(0.44, rgb(187, 196, 216)),
+    color-stop(0.72, rgb(165, 173, 184)),
+    color-stop(0.86, rgb(125, 129, 139))); */
+
+}

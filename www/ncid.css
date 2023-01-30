@@ -14,6 +14,7 @@ body {
     box-sizing: border-box;
 }
 
+.button-black,
 .button-success,
 .button-error,
 .button-warning,
@@ -42,6 +43,10 @@ body {
 .button-secondary {
     background: rgb(66, 184, 221);
     /* this is a light blue */
+}
+
+.button-black {
+    background: rgb(65, 65, 65);
 }
 
 .buttons {

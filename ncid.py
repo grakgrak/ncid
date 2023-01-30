@@ -9,6 +9,8 @@ class NCID:
         self.connector = connector
         self.ncidWriter = None
         self.ncidReader = None
+        self.gettingInfo = False
+        self.writeQ = asyncio.Queue()
 
     async def connect(self) -> None:
         await self.close()
@@ -27,13 +29,8 @@ class NCID:
                 await asyncio.sleep(5)
 
     def write(self, data):
-        try:
-            if len(data) > 0:
-                self.ncidWriter.write(data.encode()) # send to NCID server
-                self.connector.log(data.strip())
-        except:
-            self.connector.log('Failed to get write')
-            self.connect()
+        if len(data) > 0:
+            self.writeQ.put_nowait(data)
 
     async def close(self) -> None:
         if self.ncidWriter:
@@ -44,6 +41,30 @@ class NCID:
         self.ncidReader = None
         self.ncidWriter = None
 
+    def info(self, nmbr: str, name: str):
+        self.gettingInfo = True
+        self.write('REQ: INFO ' + nmbr + '&&' + name + '\n');
+
+    async def filter_data(self, msgType: str, info: dict) -> bool:
+        if msgType == "403 Start of data defining permitted requests":
+            self.gettingInfo = True 
+            return False
+        if msgType == "411 End of response":
+            self.gettingInfo = False 
+            return False
+        return True
+
+    async def process_data(self, text: str):
+        # convert to a dictionary
+        items = text.split('*') # break into a list of items
+        msgType = items[0].strip()
+        if msgType == "":
+            raise ValueError("Message Type is missing: " + text)
+
+        info = dict(zip(items[1::2], items[2::2]))
+        if await self.filter_data(msgType, info):
+            await self.connector.webSock_publish(msgType, info)
+
     # listen for NCID messages
     async def handler(self) -> None:
         while True:
@@ -53,21 +74,32 @@ class NCID:
                     continue;
 
                 data = await self.ncidReader.readline()
-                text = data.decode().strip()
-                if text == "":
+                if data == "":
                     await asyncio.sleep(1)
                     continue;
-                    #await self.connect()
-                else:
-                    # convert to a json object
-                    items = text.split('*')
-                    keys = items[1::2]
-                    values = items[2::2]
-                    info = dict(zip(keys,values))
 
-                    await self.connector.webSock_publish(items[0].strip(), info)
+                await self.process_data(data.decode().strip())
             except KeyboardInterrupt:
                 raise
             except: 
                 self.connector.log('ncidHandler', sys.exc_info())
                 await self.connect()
+
+    # write to the NCID server
+    async def writer(self) -> None:
+        while True:
+            try:
+                if self.ncidWriter != None:
+                    data = await self.writeQ.get()
+                    self.ncidWriter.write(data.encode()) # send to NCID server
+                    self.connector.log(data.strip())
+                else:
+                    await asyncio.sleep(1)
+            except KeyboardInterrupt:
+                raise
+            except:
+                self.connector.log('Failed to get write')
+                await self.connect()
+
+    def tasks(self) -> dict[str, asyncio.Future]:
+        return {'ncid_listener': self.handler(), 'ncid_writer': self.writer()};

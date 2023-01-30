@@ -40,7 +40,7 @@
                             <tr>
                                 <td>
                                     <button class="pure-button button-success" @click="alias(item)">Edit</button>
-                                    <button class="pure-button button-success" @click="info(item)">Info</button>
+                                    <button :class="blacklist[item.NMBR] ? 'pure-button button-black' : 'pure-button button-success'" @click="info(item)">Info</button>
                                 </td>
                                 <td class="text" x-text="item.DATE"></td>
                                 <td class="text" x-text="item.TIME"></td>

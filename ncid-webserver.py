@@ -30,14 +30,16 @@ async def index(request) -> None:
 
 
 async def info(request):
-    connector.ncid_write('REQ: INFO ' + request.match_info['nmbr'] + '&&' + request.match_info['name'] + '\n');
-    return web.Response(text='ok')
+    connector.ncid_info(request.match_info['nmbr'], request.match_info['name']);
+    return web.Response(text='ok info')
 
 
 async def app_main():
     # await connector.ncid_connect()
 
-    active_tasks.add(asyncio.create_task(connector.ncid_handler(), name='ncidListener'))
+    for k, v in connector.ncid_tasks().items():
+        active_tasks.add(asyncio.create_task(v, name=k))
+
     active_tasks.add(asyncio.create_task(timestamp(), name='timestamp'))
 
     app = web.Application()

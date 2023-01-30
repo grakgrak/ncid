@@ -24,10 +24,7 @@ class WebSock:
                     if msg.data == 'close':
                         await ws.close()
                     else:
-                        self.connector.ncid_write(msg.data)
-                        # if len(msg.data) > 0:
-                        #     ncidWriter.write(msg.data.encode()) # send to NCID server
-                        #     log(msg.data.strip())
+                        self.connector.ncid_write(msg.data) # send a command to the NCID server
 
                 elif msg.type == aiohttp.WSMsgType.ERROR:
                     self.connector.log('ws connection closed with exception %s' %
@@ -38,7 +35,7 @@ class WebSock:
             if len(self.CONNECTIONS) == 0:
                 await self.connector.ncid_close()
 
-    async def publish(self, topic, info):
+    async def publish(self, topic: str, info: dict):
         info["Topic"] = topic
 
         if "DATE" in info:

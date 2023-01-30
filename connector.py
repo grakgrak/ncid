@@ -18,11 +18,14 @@ class Connector():
     def ncid_connect(self) -> asyncio.Future:
         return self.ncid.connect()
 
-    def ncid_write(self, data) -> None:
+    def ncid_write(self, data: str) -> None:
         self.ncid.write(data)
     
-    def ncid_handler(self) -> asyncio.Future:
-        return self.ncid.handler()
+    def ncid_info(self, nmbr: str, name: str) -> None:
+        self.ncid.info(nmbr, name)
+
+    def ncid_tasks(self) -> dict[str, asyncio.Future]:
+        return self.ncid.tasks()
     
     def log(self, *args) -> None:
         timestamp = time.strftime('%H:%M:%S')

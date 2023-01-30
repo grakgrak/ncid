@@ -4,6 +4,7 @@ document.addEventListener('alpine:init', () => {
         timestamp: '',
         uptime: '',
         open: false,
+        blacklist: {},
         ncid: [],
         ncid_shadow: [],
         ncidLog: [],
@@ -11,6 +12,7 @@ document.addEventListener('alpine:init', () => {
         delayID: 0,
         aliasName: undefined,
         selectedItem: undefined,
+        infoQueue: [],
 
         isOpen() {
             this.open = this.socket && this.socket.readyState === this.socket.OPEN;
@@ -20,6 +22,15 @@ document.addEventListener('alpine:init', () => {
         delayedUpdate() {
             this.delayID = 0; 
             this.ncid = this.ncid_shadow;
+        },
+
+        isBlacklisted(item) {
+            // check for a cached value for this item.ID
+            if (this.blacklist[item.NMBR] !== undefined)
+                return;
+            // if not found then add to cache and Queue an info request for the item
+            this.blacklist[item.NMBR] = item.NAME == 'Graham';
+            this.infoQueue.push(item.NMBR)
         },
 
         async init() {
@@ -41,7 +52,9 @@ document.addEventListener('alpine:init', () => {
                         if (this.ncid_shadow.length == 0)
                             this.ncid_shadow = this.ncid;
 
-                        this.ncid_shadow = this.ncid_shadow.filter((item) => item.ID != data.ID)
+                            this.isBlacklisted(data);
+
+                            this.ncid_shadow = this.ncid_shadow.filter((item) => item.ID != data.ID)
                         this.ncid_shadow.unshift(data);
 
                         if (this.delayID)
@@ -124,7 +137,9 @@ document.addEventListener('alpine:init', () => {
         },
 
         async info(item) {
-            await fetch('/info/' + item.NAME + '/' + item.NMBR)
+            fetch('/info/' + item.NAME + '/' + item.NMBR)
+            .then((resp) => resp.text())
+            .then((text) => console.log(text))
             //this.sendCommand("REQ: INFO " + item.NMBR + "&&" + item.NAME, false);
         },
 

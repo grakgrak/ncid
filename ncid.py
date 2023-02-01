@@ -157,12 +157,14 @@ class NCID:
     async def _info_check(self) -> None:
         while True:
             try:
-                if time.time() - self.lastReadTime > 2:
+                await asyncio.sleep(1)
+                
+                # wait for 1 second then add all the requests
+                if time.time() - self.lastReadTime > 1:
                     for k, v in self.info_filter.cache.items():
                         if v == "request":
                             self.write(self.info_filter.requestByKey(k))
-                            break
-                await asyncio.sleep(1)
+
             except KeyboardInterrupt:
                 raise
             except:

@@ -24,13 +24,12 @@ document.addEventListener('alpine:init', () => {
             this.ncid = this.ncid_shadow;
         },
 
-        isBlacklisted(item) {
+        checkBlacklisted(item) {
             // check for a cached value for this item.ID
             if (this.blacklist[item.NMBR] !== undefined)
                 return;
             // if not found then add to cache and Queue an info request for the item
-            this.blacklist[item.NMBR] = item.NAME == 'Graham';
-            this.infoQueue.push(item.NMBR)
+            // this.infoQueue.push(item.NMBR)
         },
 
         async init() {
@@ -43,29 +42,32 @@ document.addEventListener('alpine:init', () => {
 
             this.socket.addEventListener("message", (event) => {
                 const data = JSON.parse(event.data)
+
+                // handle timestamp message
                 if (data.Topic === 'Timestamp') {
                     this.timestamp = data.timestamp;
                     this.uptime = data.uptime;
+                    return
+                }
+
+                // handle NCID messages
+                if (data.Topic === 'CIDLOG:' || data.Topic === 'HUPLOG:' || data.Topic === 'CID:' || data.Topic === 'HUP:') {
+                    if (this.ncid_shadow.length == 0)
+                        this.ncid_shadow = this.ncid;
+
+                    this.blacklist[data.NMBR] = data.status == 'black number';
+
+                    this.ncid_shadow = this.ncid_shadow.filter((item) => item.ID != data.ID)
+                    this.ncid_shadow.unshift(data);
+
+                    if (this.delayID)
+                        clearTimeout(this.delayID)
+                    this.delayID = setTimeout(this.delayedUpdate.bind(this), 250);
                 }
                 else {
-                    if (data.Topic === 'CIDLOG:' || data.Topic === 'HUPLOG:' || data.Topic === 'CID:' || data.Topic === 'HUP:') {
-                        if (this.ncid_shadow.length == 0)
-                            this.ncid_shadow = this.ncid;
-
-                            this.isBlacklisted(data);
-
-                            this.ncid_shadow = this.ncid_shadow.filter((item) => item.ID != data.ID)
-                        this.ncid_shadow.unshift(data);
-
-                        if (this.delayID)
-                            clearTimeout(this.delayID)
-                        this.delayID = setTimeout(this.delayedUpdate.bind(this), 250);
-                    }
-                    else {
-                        this.ncidLog.push(data);
-                    }
-                    console.log(event.data);
+                    this.ncidLog.push(data);
                 }
+                console.log(event.data);
             });
 
             // wait for connection to establish

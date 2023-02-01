@@ -30,20 +30,20 @@ async def index(request) -> None:
 
 
 async def info(request):
-    connector.ncid_info(request.match_info['nmbr'], request.match_info['name']);
-    return web.Response(text='ok info')
+    status = await connector.ncid_info(request.match_info['nmbr'], request.match_info['name']);
+    print('info status: ' + status)
+    return web.Response(text='ok info ' + status)
 
 
 async def app_main():
-    # await connector.ncid_connect()
-
+    # add in the tasks
+    active_tasks.add(asyncio.create_task(timestamp(), name='timestamp'))
     for k, v in connector.ncid_tasks().items():
         active_tasks.add(asyncio.create_task(v, name=k))
 
-    active_tasks.add(asyncio.create_task(timestamp(), name='timestamp'))
-
     app = web.Application()
 
+    # setup the routing
     app.router.add_get('/', index)
     app.router.add_get('/info/{name}/{nmbr}', info)
     app.router.add_get('/ws', connector.webSock_handler)

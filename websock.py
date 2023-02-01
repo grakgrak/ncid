@@ -36,8 +36,7 @@ class WebSock:
                 await self.connector.ncid_close()
 
     async def publish(self, topic: str, info: dict):
-        info["Topic"] = topic
-
+        # reformat the date and time fields
         if "DATE" in info:
             m = re.match(r"(\d{2})(\d{2})(\d{4})", info["DATE"])
             info["DATE"] = m.group(3) + '-' + m.group(2) + '-' + m.group(1)
@@ -47,9 +46,9 @@ class WebSock:
             if len(t) == 4:
                 info["TIME"] = t[:2] + ':' + t[2:4]
 
-        info["ID"] = hash(str(info))
+        info["Topic"] = topic
 
-        message = json.dumps(info).strip()
+        message = json.dumps(info).strip() # convert to json
         try:
             for ws in self.CONNECTIONS:
                 await ws.send_str(message)

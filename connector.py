@@ -21,8 +21,8 @@ class Connector():
     def ncid_write(self, data: str) -> None:
         self.ncid.write(data)
     
-    def ncid_info(self, nmbr: str, name: str) -> None:
-        self.ncid.info(nmbr, name)
+    def ncid_info(self, nmbr: str, name: str) -> asyncio.Future:
+        return self.ncid.info(nmbr, name)
 
     def ncid_tasks(self) -> dict[str, asyncio.Future]:
         return self.ncid.tasks()

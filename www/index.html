@@ -30,7 +30,7 @@
                 <table class="pure-table-striped">
                     <tbody>
                         <tr>
-                            <th style="width: 90px"></th>
+                            <th style="width: 40px"></th>
                             <th>Date</th>
                             <th>Time</th>
                             <th>Number</th>
@@ -39,8 +39,7 @@
                         <template x-for="item in ncid">
                             <tr>
                                 <td>
-                                    <button class="pure-button button-success" @click="alias(item)">Edit</button>
-                                    <button :class="blacklist[item.NMBR] ? 'pure-button button-black' : 'pure-button button-success'" @click="info(item)">Info</button>
+                                    <button :class="blacklist[item.NMBR] ? 'pure-button button-black' : 'pure-button button-success'" @click="alias(item)">Edit</button>
                                 </td>
                                 <td class="text" x-text="item.DATE"></td>
                                 <td class="text" x-text="item.TIME"></td>

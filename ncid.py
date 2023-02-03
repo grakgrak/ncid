@@ -85,7 +85,10 @@ class NCID:
         self.ncidReader = None
         self.ncidWriter = None
 
-    async def info(self, nmbr: str, name: str):
+    def blacklist(self, nmbr: str) -> None:
+        self.write('REQ: black add "' + nmbr + '" ""\n')
+
+    async def info(self, nmbr: str, name: str) -> str:
         for x in range(4):
             status = self.info_filter.query(nmbr, name)
             if status == "request":
@@ -97,7 +100,11 @@ class NCID:
         else:
             return "unknown"
 
-    async def _process_data(self, text: str):
+    def reload(self) -> None:
+        self.info_filter.cache.clear()
+        self.write("REQ: RELOAD\n")
+
+    async def _process_data(self, text: str) -> None:
         # print(text)
         items = text.split('*') # break into a list of items
         msgType = items[0].strip() # msgType is used as the Topic
@@ -158,7 +165,7 @@ class NCID:
         while True:
             try:
                 await asyncio.sleep(1)
-                
+
                 # wait for 1 second then add all the requests
                 if time.time() - self.lastReadTime > 1:
                     for k, v in self.info_filter.cache.items():

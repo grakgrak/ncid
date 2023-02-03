@@ -123,8 +123,11 @@ document.addEventListener('alpine:init', () => {
         },
 
         reloadServer() {
-            this.sendCommand("REQ: RELOAD", true);
-            setTimeout(() => this.sendCommand("REQ: REREAD", false), 2000);
+            fetch('/ncid/reload')
+            .then((resp) => resp.text())
+            .then((text) => { console.log(text); this.sendCommand("REQ: REREAD", false); })
+            // this.sendCommand("REQ: RELOAD", true);
+            // setTimeout(() => this.sendCommand("REQ: REREAD", false), 2000);
         },
 
         rereadServer() {
@@ -139,7 +142,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         async info(item) {
-            fetch('/info/' + item.NAME + '/' + item.NMBR)
+            fetch('/ncid/info/' + item.NAME + '/' + item.NMBR)
             .then((resp) => resp.text())
             .then((text) => console.log(text))
             //this.sendCommand("REQ: INFO " + item.NMBR + "&&" + item.NAME, false);
@@ -161,8 +164,11 @@ document.addEventListener('alpine:init', () => {
             }
         },
 
-        saveBlacklist() {
-            this.sendCommand("REQ: black add \"" + this.selectedItem.NMBR + "\" \"\"", false);
+        async saveBlacklist() {
+            fetch('/ncid/blacklist/' + this.selectedItem.NMBR)
+            .then((resp) => resp.text())
+            .then((text) => console.log(text))
+            //this.sendCommand("REQ: black add \"" + this.selectedItem.NMBR + "\" \"\"", false);
         },
 
         requestUpdates() {

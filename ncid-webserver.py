@@ -12,8 +12,9 @@ NCID_PORT = 3333
 
 active_tasks = set()
 connector = Connector()
-connector.init(WebSock(connector), NCID(connector, NCID_SERVER, NCID_PORT))
-
+ncid = NCID(connector, NCID_SERVER, NCID_PORT)
+webSock = WebSock(connector)
+connector.init(webSock, ncid)
 
 async def timestamp() -> None:
     while True:
@@ -21,32 +22,42 @@ async def timestamp() -> None:
             'timestamp': time.asctime(),
             'uptime': time.process_time()
         }
-        await connector.webSock_publish( "Timestamp", timestamp)
+        await webSock.publish( "Timestamp", timestamp)
         await asyncio.sleep(1)
 
-
+# website handlers
 async def index(request) -> None:
     raise web.HTTPFound(location = '/index.html')
 
+async def ncid_blacklist(request):
+    ncid.blacklist(request.match_info['nmbr']);
+    return web.Response(text='ok')
 
-async def info(request):
-    status = await connector.ncid_info(request.match_info['nmbr'], request.match_info['name']);
+async def ncid_info(request):
+    status = await ncid.info(request.match_info['nmbr'], request.match_info['name']);
     print('info status: ' + status)
     return web.Response(text='ok info ' + status)
 
+async def ncid_reload(request):
+    ncid.reload();
+    return web.Response(text='ok')
 
+
+# main entry point to program
 async def app_main():
     # add in the tasks
     active_tasks.add(asyncio.create_task(timestamp(), name='timestamp'))
-    for k, v in connector.ncid_tasks().items():
+    for k, v in ncid.tasks().items():
         active_tasks.add(asyncio.create_task(v, name=k))
 
     app = web.Application()
 
     # setup the routing
     app.router.add_get('/', index)
-    app.router.add_get('/info/{name}/{nmbr}', info)
-    app.router.add_get('/ws', connector.webSock_handler)
+    app.router.add_get('/ncid/blacklist/{nmbr}', ncid_blacklist)
+    app.router.add_get('/ncid/info/{name}/{nmbr}', ncid_info)
+    app.router.add_get('/ncid/reload', ncid_reload)
+    app.router.add_get('/ws', webSock.handler)
     app.router.add_static('/', path='./www', name='static')
 
     return app

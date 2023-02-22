@@ -8,6 +8,7 @@ from connector import Connector
 # cache of ncid data rows keyed by ID
 NCID_info_cache : Dict[str, Dict[str,str]] = {}
 
+# Used to filter out the blacklist info state for the calls
 class InfoFilter:
     def __init__(self) -> None:
         self.gettingInfo = False

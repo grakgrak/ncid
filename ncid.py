@@ -1,7 +1,12 @@
 import asyncio
+import re
 import sys
 import time
+from typing import Dict
 from connector import Connector
+
+# cache of ncid data rows keyed by ID
+NCID_info_cache : Dict[str, Dict[str,str]] = {}
 
 class InfoFilter:
     def __init__(self) -> None:
@@ -11,10 +16,17 @@ class InfoFilter:
 
     def requestByKey(self, key: str) -> str:
         self.cache[key] = "unknown"
-        return 'REQ: INFO ' + key + '\n';
+        return 'REQ: INFO ' + key + '\n'
 
     def request(self, nmbr: str, name: str) -> str:
         return self.requestByKey(nmbr + '&&' + name)
+
+    def clearAll(self) -> None:
+        self.cache.clear()
+
+    def clearKey(self, nmbr: str, name: str) -> None:
+        key = nmbr + '&&' + name
+        self.cache[key] = "request"
 
     def query(self, nmbr: str, name: str) -> str:
         key = nmbr + '&&' + name
@@ -41,7 +53,7 @@ class InfoFilter:
                 self.info_data.append(msgType[6:])
                 return False
 
-        return True;
+        return True
 
 
 
@@ -72,7 +84,7 @@ class NCID:
                 await self.connector.webSock_publish('ncid connection failed', {})
                 await asyncio.sleep(5)
 
-    def write(self, data):
+    def write(self, data: str):
         if len(data) > 0:
             self.writeQ.put_nowait(data)
 
@@ -85,14 +97,15 @@ class NCID:
         self.ncidReader = None
         self.ncidWriter = None
 
-    def blacklist(self, nmbr: str) -> None:
+    def blacklist(self, nmbr: str, name: str) -> None:
         self.write('REQ: black add "' + nmbr + '" ""\n')
+        self.info_filter.clearKey(nmbr, name)
 
     async def info(self, nmbr: str, name: str) -> str:
         for x in range(4):
             status = self.info_filter.query(nmbr, name)
             if status == "request":
-                self.write(self.info_filter.request(nmbr, name));
+                self.write(self.info_filter.request(nmbr, name))
             elif status == "unknown":
                 await asyncio.sleep(0.5)
             else:
@@ -101,11 +114,11 @@ class NCID:
             return "unknown"
 
     def reload(self) -> None:
-        self.info_filter.cache.clear()
+        self.info_filter.clearAll()
         self.write("REQ: RELOAD\n")
 
     async def _process_data(self, text: str) -> None:
-        # print(text)
+        print("Rx {" + text + "}")
         items = text.split('*') # break into a list of items
         msgType = items[0].strip() # msgType is used as the Topic
         if msgType == "":
@@ -113,9 +126,22 @@ class NCID:
 
         info = dict(zip(items[1::2], items[2::2])) # build the info dictionary
 
+        # reformat the date and time fields
+        if "DATE" in info:
+            m = re.match(r"(\d{2})(\d{2})(\d{4})", info["DATE"])
+            info["DATE"] = m.group(3) + '-' + m.group(1) + '-' + m.group(2)
+
+        if "TIME" in info:
+            t = info["TIME"]
+            if len(t) == 4:
+                info["TIME"] = t[:2] + ':' + t[2:4]
+
+        if "NMBR" in info and "DATE" in info and "TIME" in info:
+            info["ID"] = hash(msgType + info["DATE"] + info["TIME"] + info["NMBR"]) # add a unique ID to the NCID data
+            NCID_info_cache[info["ID"]] = info
+
         # filter out the INFO data
         if self.info_filter.filter(msgType, info):
-            info["ID"] = hash(str(info)) # add a unique ID to the NCID data
             if "NMBR" in info and "NAME" in info:
                 info["status"] = self.info_filter.query(info["NMBR"], info["NAME"])
             await self.connector.webSock_publish(msgType, info)
@@ -127,15 +153,16 @@ class NCID:
             try:
                 if not self.ncidReader:
                     await asyncio.sleep(1)
-                    continue;
+                    continue
 
                 data = await self.ncidReader.readline()
-                if data == "":
+                text = data.decode().strip()
+                if text == "":
                     await asyncio.sleep(1)
-                    continue;
+                    continue
 
                 self.lastReadTime = time.time()
-                await self._process_data(data.decode().strip())
+                await self._process_data(text)
             except KeyboardInterrupt:
                 raise
             except asyncio.CancelledError:
@@ -184,4 +211,4 @@ class NCID:
             'ncid_listener': self._handler(), 
             'ncid_writer': self._writer(),
             'ncid_info': self._info_check()
-        };
+        }

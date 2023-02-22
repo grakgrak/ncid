@@ -1,3 +1,4 @@
+import aiohttp_cors
 import asyncio
 import time
 
@@ -30,16 +31,16 @@ async def index(request) -> None:
     raise web.HTTPFound(location = '/index.html')
 
 async def ncid_blacklist(request):
-    ncid.blacklist(request.match_info['nmbr']);
+    ncid.blacklist(request.match_info['nmbr'], request.match_info['name'])
     return web.Response(text='ok')
 
 async def ncid_info(request):
-    status = await ncid.info(request.match_info['nmbr'], request.match_info['name']);
+    status = await ncid.info(request.match_info['nmbr'], request.match_info['name'])
     print('info status: ' + status)
     return web.Response(text='ok info ' + status)
 
 async def ncid_reload(request):
-    ncid.reload();
+    ncid.reload()
     return web.Response(text='ok')
 
 
@@ -51,14 +52,25 @@ async def app_main():
         active_tasks.add(asyncio.create_task(v, name=k))
 
     app = web.Application()
+    cors = aiohttp_cors.setup(app, defaults={
+    "*": aiohttp_cors.ResourceOptions(
+            allow_credentials=True,
+            expose_headers="*",
+            allow_headers="*",
+            allow_methods="*",
+        )
+    })
 
-    # setup the routing
-    app.router.add_get('/', index)
-    app.router.add_get('/ncid/blacklist/{nmbr}', ncid_blacklist)
+     # setup the routing
+    #app.router.add_get('/', index)
+    app.router.add_get('/ncid/blacklist/{name}/{nmbr}', ncid_blacklist)
     app.router.add_get('/ncid/info/{name}/{nmbr}', ncid_info)
     app.router.add_get('/ncid/reload', ncid_reload)
     app.router.add_get('/ws', webSock.handler)
-    app.router.add_static('/', path='./www', name='static')
+    #app.router.add_static('/', path='./www', name='static')
+
+    for route in list(app.router.routes()):
+        cors.add(route)
 
     return app
 

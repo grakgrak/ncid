@@ -14,6 +14,7 @@ class InfoFilter:
         self.gettingInfo = False
         self.info_data = []
         self.cache = {}
+        self.publishResponse = False
 
     def requestByKey(self, key: str) -> str:
         self.cache[key] = "unknown"
@@ -39,7 +40,7 @@ class InfoFilter:
         if msgType == "403 Start of data defining permitted requests":
             self.gettingInfo = True
             self.info_data = []
-            return False
+            return self.publishResponse
 
         if msgType == "411 End of response":
             self.gettingInfo = False
@@ -47,12 +48,13 @@ class InfoFilter:
             key = self.info_data[2]
             self.cache[key[5:]] = self.info_data[1]
 
-            return False
+            self.publishResponse = False # reset the publish flag
+            return self.publishResponse
 
         if self.gettingInfo:
             if msgType.startswith("INFO:"):
                 self.info_data.append(msgType[6:])
-                return False
+                return self.publishResponse
 
         return True
 
@@ -98,21 +100,17 @@ class NCID:
         self.ncidReader = None
         self.ncidWriter = None
 
+    def alias(self, nmbr: str, alias: str, name: str) -> None:
+        self.write('REQ: alias add "' + nmbr + '&&' + name + '" "NAMEDEP&&' + alias + '"\n')
+        self.info_filter.clearKey(nmbr, name)
+
     def blacklist(self, nmbr: str, name: str) -> None:
         self.write('REQ: black add "' + nmbr + '" ""\n')
         self.info_filter.clearKey(nmbr, name)
 
-    async def info(self, nmbr: str, name: str) -> str:
-        for x in range(4):
-            status = self.info_filter.query(nmbr, name)
-            if status == "request":
-                self.write(self.info_filter.request(nmbr, name))
-            elif status == "unknown":
-                await asyncio.sleep(0.5)
-            else:
-                return status
-        else:
-            return "unknown"
+    def info(self, nmbr: str, name: str) -> str:
+        self.info_filter.publishResponse = True
+        self.write('REQ: INFO ' + nmbr + '&&' + name + '\n')
 
     def reload(self) -> None:
         self.info_filter.clearAll()

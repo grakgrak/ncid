@@ -30,14 +30,17 @@ async def timestamp() -> None:
 async def index(request) -> None:
     raise web.HTTPFound(location = '/index.html')
 
+async def ncid_alias(request):
+    ncid.alias(request.match_info['nmbr'], request.match_info['alias'], request.match_info['name'])
+    return web.Response(text='ok')
+
 async def ncid_blacklist(request):
     ncid.blacklist(request.match_info['nmbr'], request.match_info['name'])
     return web.Response(text='ok')
 
 async def ncid_info(request):
-    status = await ncid.info(request.match_info['nmbr'], request.match_info['name'])
-    print('info status: ' + status)
-    return web.Response(text='ok info ' + status)
+    ncid.info(request.match_info['nmbr'], request.match_info['name'])
+    return web.Response(text='ok')
 
 async def ncid_reload(request):
     ncid.reload()
@@ -63,6 +66,7 @@ async def app_main():
 
      # setup the routing
     #app.router.add_get('/', index)
+    app.router.add_get('/ncid/alias/{name}/{nmbr}/{alias}', ncid_alias)
     app.router.add_get('/ncid/blacklist/{name}/{nmbr}', ncid_blacklist)
     app.router.add_get('/ncid/info/{name}/{nmbr}', ncid_info)
     app.router.add_get('/ncid/reload', ncid_reload)

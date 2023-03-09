@@ -4,6 +4,7 @@
     import { loginfo, ncid, selected, type Dictionary } from './store';
     import { ncidClient } from './ncidClient';
 
+    let aliasText: string = '';
     let showModal: boolean = false;
     let client: any;
 
@@ -30,17 +31,18 @@
 
     const edit = (item: Dictionary<string>) => {
         $selected = item;
+        fetch('http://localhost:8080/ncid/info/' + $selected.NAME + '/' + $selected.NMBR)
         showModal = true;
     }
 
-    const blacklist = () => {
-        fetch('http://localhost:8080/ncid/blacklist/' + $selected.NAME + '/' + $selected.NMBR)
+    const alias = () => {
+        fetch('http://localhost:8080/ncid/alias/' + $selected.NAME + '/' + $selected.NMBR + '/' + {aliasText})
             .then((resp) => resp.text())
             .then((text) => alert(text));
     }
 
-    const info = () => {
-        fetch('http://localhost:8080/ncid/info/' + $selected.NAME + '/' + $selected.NMBR)
+    const blacklist = () => {
+        fetch('http://localhost:8080/ncid/blacklist/' + $selected.NAME + '/' + $selected.NMBR)
             .then((resp) => resp.text())
             .then((text) => alert(text));
     }
@@ -57,8 +59,9 @@
                     <th>Time</th>
                     <th>Number</th>
                     <th>Alias</th>
+                    <th>ID</th>
                 </tr>
-        {#each $ncid as data}
+        {#each $ncid as data (data.ID)}
             <tr>
                 <td>
                     <button class="pure-button button-success" class:button-black={data.status === 'black number'} on:click={() => edit(data)}>Edit</button>
@@ -67,6 +70,7 @@
                 <td class="text">{data.TIME}</td>
                 <td class="text">{@html getLink(data)}</td>
                 <td class:noname={data.NAME === "NO NAME"} class="text">{data.NAME}</td>
+                <td class="text">{data.ID}</td>
             </tr>
         {/each}
             </tbody>
@@ -96,8 +100,8 @@
 
     <form class="pure-form-stacked" method="dialog">
         <label for="alias">Enter new Alias</label>
-        <input type="text" id="alias" placeholder="Alias" />
-        <button type="submit" class="pure-button button-primary">Save Alias</button>
+        <input type="text" id="alias" placeholder="Alias" value={aliasText} />
+        <button type="submit" class="pure-button button-primary" on:click={alias}>Save Alias</button>
         <button type="submit" class="pure-button button-primary" on:click={blacklist}>Save Blacklist</button>
     </form>
 </Modal>
@@ -164,5 +168,10 @@
 	border-radius: 10px;
     background-color: rgb(104, 101, 101);
 
+}
+
+th {
+    text-align: left;
+    padding-left: 8px;
 }
 </style>

@@ -36,10 +36,11 @@ export function ncidClient(url:string) {
         }
     
         if (data.Topic === 'CIDLOG:' || data.Topic === 'HUPLOG:' || data.Topic === 'CID:' || data.Topic === 'HUP:') {
+            console.log(data.ID, data)
             ncid.update( items => {
-                items.filter((item) => item.ID != data.ID)
-                items.unshift(data);
-                return items;
+                const newItems = items.filter((item) => item.ID != data.ID)
+                newItems.unshift(data);
+                return newItems;
             })
         }
         else {

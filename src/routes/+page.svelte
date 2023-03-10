@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Modal from "./modal.svelte";
-    import { loginfo, ncidinfo, ncidstatus, selected, type Dictionary } from './store';
+    import { loginfo, ncidinfo, selected, type Dictionary } from './store';
 	import { onMount } from "svelte";
 	import { ncidClient } from "./ncidClient";
 

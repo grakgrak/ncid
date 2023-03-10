@@ -2,8 +2,15 @@ import {loginfo, ncidinfo, uptime} from './store';
 
 export function ncidClient(url:string) {
     const infoLines: string[] = [];
+    const ncidstatusQ: string[] = [];
     const socket: WebSocket = new WebSocket(url); // 'ws://127.0.0.1:8080/ws'
     console.log("opening webSocket to:", url)
+
+    const interval = setInterval(() => {
+        const request = ncidstatusQ.pop();
+        if (request)
+            sendText(request);
+    }, 100);
     
     socket.addEventListener("message", async (event:any) => {
         const text: string = await event.data.text();
@@ -36,6 +43,7 @@ export function ncidClient(url:string) {
     });
     
     const process_data = (text: string) => {
+        // if this is a caller data row
         if (text.startsWith('CIDLOG:') || text.startsWith('HUPLOG:') || text.startsWith('CID:') || text.startsWith('HUP:')) {
             const items = text.split('*') // break into a list of items
             const msgType = items[0].trim() // msgType is used as the Topic
@@ -52,19 +60,44 @@ export function ncidClient(url:string) {
             // add in ID
             info.ID = info.DATE+info.TIME+info.NMBR;
 
+            // add the request to the info request queue
+            ncidstatusQ.push(`REQ: INFO ${info.NMBR}&&${info.NAME}\n`)
+
             // console.log('info:', info, text)
             ncidinfo.update( items => {
                 const newItems = items.filter((item) => item.ID != info.ID)
                 newItems.unshift(info);
                 return newItems;
-            })
+            });
         }
         else {
             if (text.startsWith('403 ')) {
                 infoLines.length = 0;
+                return;
             }
+            if (text.startsWith('411 ')) {
+                return;
+            }
+
             if (text.startsWith('INFO: ')) {
                 infoLines.push(text);
+
+                if (text.startsWith('INFO: dial')) {
+
+                    const nmbr = text.slice(11, text.indexOf('&&'));
+
+                    ncidinfo.update( items => {
+                        const newItems = items.map( i => { 
+                            if (i.NMBR === nmbr)
+                                i.status = infoLines[1].slice(6);
+
+                            return i;
+                        });
+
+                        return newItems;
+                    });
+                }
+                return;
             }
 
             loginfo.update( items => {
@@ -75,7 +108,7 @@ export function ncidClient(url:string) {
     };
 
     const sendText = (text: string) => {
-        console.log('send:', text)
+        //console.log('send:', text)
         socket.send(new Blob([text]))
     };
 
@@ -94,7 +127,7 @@ export function ncidClient(url:string) {
     }
     
     return {
-        close() {console.log('Closing Client'); socket.close();},
+        close() {console.log('Closing Client'); clearInterval(interval); socket.close();},
         send(text: string) { sendText(text);},
         info(name:string, nmbr: string): Promise<string> { return getInfo(name, nmbr);}
     };

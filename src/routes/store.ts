@@ -6,7 +6,6 @@ export interface Dictionary<T> {
 
 export const loginfo = writable<string[]>([]);
 export let ncidinfo = writable<Dictionary<string>[]>([]);
-export let ncidstatus = writable<Dictionary<string>>();
 
 export let selected = writable<Dictionary<string>>();
 export let timestamp = writable('');

@@ -1,20 +1,42 @@
 <script lang="ts">
-    import {timestamp} from './store';
-
 </script>
-<h2 class="header">NCID Caller ID<span class="timestamp">{$timestamp}</span></h2>
-<slot></slot>
-<style>
-    .header {
-        border-radius: 5pt;
-        background-color: silver;
-        padding: 16px;
-        margin: 0;
-    }
 
-    .timestamp {
-        margin-left: 20em;
-        color:blueviolet;
-        font-size: large;
-    }
-</style>    
+<header>
+<span class='title'>NCID Caller ID</span>
+<nav>
+	<ul>
+		<li><a href="/">home</a></li>
+		<li><a href="/test">test</a></li>
+	</ul>
+</nav>
+</header>
+<slot />
+
+<style>
+header {
+    background-color: white;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+header * {
+    display: inline;
+}
+
+header li {
+    margin: 20px;
+}
+
+header li a {
+    color: black;
+    text-decoration: none;
+}
+
+.title {
+    margin-left: 1em;
+    font-weight: bold;
+}
+</style>

@@ -1,21 +1,38 @@
-<script lang="ts">
+TEST PAGE
+<!-- <script lang="ts">
 	import Modal from "./modal.svelte";
-    import { loginfo, ncidinfo, ncidstatus, selected, type Dictionary } from './store';
 	import { onMount } from "svelte";
-	import { ncidClient } from "./ncidClient";
+    import { loginfo, ncid, selected, timestamp, type Dictionary } from './store';
+    import { ncidClient } from './ncidClient';
 
     let aliasText: string = '';
     let showModal: boolean = false;
     let client: any;
 
     onMount(()=>{
-        client = ncidClient('ws://192.168.1.231:3334');
+        client = ncidClient('ws://127.0.0.1:8080/ws');
         return client.close;
     })
 
-    const edit = async (item: Dictionary<string>) => {
+    const getLink = (item: Dictionary<string>) => {
+        const text: string = item.NMBR + (item.Topic === 'HUPLOG:' ? ' (hangup)' : '');
+        if (item.NAME == "NO NAME")
+            return '<a target="_whocalled_" href="' + 'https://who-called.co.uk/Number/' + item.NMBR + '">' + text + '</a>';
+        return text;
+    };
+
+    const rereadServer = () => {
+        client.send("REQ: REREAD" + "\n")
+    }
+
+    const reloadServer = () => {
+        fetch('http://localhost:8080/ncid/reload')
+        .then((resp) => client.send("REQ: REREAD" + "\n"))
+    }
+
+    const edit = (item: Dictionary<string>) => {
         $selected = item;
-        $selected.status = await client.info( item.NAME, item.NMBR);
+        fetch('http://localhost:8080/ncid/info/' + $selected.NAME + '/' + $selected.NMBR)
         showModal = true;
     }
 
@@ -31,17 +48,9 @@
             .then((text) => alert(text));
     }
 
-    const getLink = (item: Dictionary<string>) => {
-        const text: string = item.NMBR + (item.Topic === 'HUPLOG:' ? ' (hangup)' : '');
-        if (item.NAME == "NO NAME")
-            return `<a target="_whocalled_" href="https://who-called.co.uk/Number/${item.NMBR}">${text}</a>`;
-        return text;
-    };
-
-    const formatDate = (date: string) => `${date.slice(2,4)}-${date.slice(0,2)}-${date.slice(4)}`;
-    const formatTime = (time: string) => `${time.slice(0,2)}:${time.slice(2)}`;
 </script>
 
+<h2 class="header">NCID Caller ID<span class="timestamp">{$timestamp}</span></h2>
 <div class="pure-g main">
     <div class="pure-u-3-4 vscroll">
         <table class="pure-table-striped">
@@ -52,15 +61,15 @@
                     <th>Time</th>
                     <th>Number</th>
                     <th>Alias</th>
-                    <th style="width: 120px">ID</th>
+                    <th>ID</th>
                 </tr>
-        {#each $ncidinfo as data (data.ID)}
+        {#each $ncid as data (data.ID)}
             <tr>
                 <td>
                     <button class="pure-button button-success" class:button-black={data.status === 'black number'} on:click={() => edit(data)}>Edit</button>
                 </td>
-                <td class="text">{formatDate(data.DATE)}</td>
-                <td class="text">{formatTime(data.TIME)}</td>
+                <td class="text">{data.DATE}</td>
+                <td class="text">{data.TIME}</td>
                 <td class="text">{@html getLink(data)}</td>
                 <td class:noname={data.NAME === "NO NAME"} class="text">{data.NAME}</td>
                 <td class="text">{data.ID}</td>
@@ -71,14 +80,14 @@
     </div>
     <div class="pure-u-1-4 vscroll">
         <div class="pure-g buttons">
-            <button class="pure-button button-success" on:click={()=>client.send('REQ: REREAD\n')}>Reread</button>
-            <button class="pure-button button-secondary" on:click={()=>client.send('REQ: RELOAD\n')}>Reload</button>
+            <button class="pure-button button-success" on:click={rereadServer}>Reread</button>
+            <button class="pure-button button-secondary" on:click={reloadServer}>Reload</button>
         </div>
         <table class="pure-table otherTable">
             <tbody>
                 {#each $loginfo as log}
                     <tr>
-                        <td class="text">{log}</td>
+                        <td class="text">{log.Topic}</td>
                     </tr>
                 {/each}
             </tbody>
@@ -144,7 +153,7 @@
     height: calc(100vh - 100px);
 }
 
-/* .header {
+.header {
     border-radius: 5pt;
     background-color: silver;
     padding: 16px;
@@ -155,7 +164,7 @@
     margin-left: 20em;
     color:blueviolet;
     font-size: large;
-} */
+}
 
 ::-webkit-scrollbar-track
 {
@@ -173,10 +182,12 @@
 {
 	border-radius: 10px;
     background-color: rgb(104, 101, 101);
+
 }
 
 th {
     text-align: left;
     padding-left: 8px;
 }
-</style>
+
+</style> -->

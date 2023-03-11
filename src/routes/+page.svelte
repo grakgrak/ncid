@@ -14,21 +14,30 @@
     })
 
     const edit = async (item: Dictionary<string>) => {
+        client.send(`REQ: INFO ${item.NMBR}&&${item.NAME}\n`);
         $selected = item;
-        $selected.status = await client.info( item.NAME, item.NMBR);
+        aliasText = $selected.NAME;
         showModal = true;
     }
 
-    const alias = () => {
-        fetch('http://localhost:8080/ncid/alias/' + $selected.NAME + '/' + $selected.NMBR + '/' + {aliasText})
-            .then((resp) => resp.text())
-            .then((text) => alert(text));
+    const alias = async () => {
+        if ($selected.alias === "NOALIAS")
+            client.send(`REQ: alias add "${$selected.NMBR}&&${aliasText}" "NAMEDEP&&${$selected.NAME}"\n`);
+        else
+            client.send(`REQ: alias modify "${$selected.NMBR}&&${aliasText}" "NAMEDEP&&${$selected.NAME}"\n`);
+
+        await new Promise(r => setTimeout(r, 4000));
+        client.send('REQ: UPDATE\n');
+        await new Promise(r => setTimeout(r, 4000));
+        client.send('WRK: ACCEPT LOG\n');
+        await new Promise(r => setTimeout(r, 4000));
+        client.send('REQ: RELOAD\n');
+        await new Promise(r => setTimeout(r, 2000));
+        client.send('REQ: REREAD\n');
     }
 
     const blacklist = () => {
-        fetch('http://localhost:8080/ncid/blacklist/' + $selected.NAME + '/' + $selected.NMBR)
-            .then((resp) => resp.text())
-            .then((text) => alert(text));
+        client.send(`REQ: black add "${$selected.NMBR}" ""\n`);
     }
 
     const getLink = (item: Dictionary<string>) => {
@@ -93,7 +102,7 @@
 
     <form class="pure-form-stacked" method="dialog">
         <label for="alias">Enter new Alias</label>
-        <input type="text" id="alias" placeholder="Alias" value={aliasText} />
+        <input type="text" id="alias" placeholder="Alias" bind:value={aliasText} />
         <button type="submit" class="pure-button button-primary" on:click={alias}>Save Alias</button>
         <button type="submit" class="pure-button button-primary" on:click={blacklist}>Save Blacklist</button>
     </form>

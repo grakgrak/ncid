@@ -1,135 +1,121 @@
-import {loginfo, ncidinfo, uptime} from './store';
+import { loginfo, ncidinfo, uptime, type INcidRequest } from './store';
+import { InfoHandler } from './infoHandler';
 
-export function ncidClient(url:string) {
-    const infoLines: string[] = [];
-    const ncidstatusQ: string[] = [];
-    const socket: WebSocket = new WebSocket(url); // 'ws://127.0.0.1:8080/ws'
-    console.log("opening webSocket to:", url)
+export function ncidClient(url: string) {
+	let currentRequest: INcidRequest | undefined = undefined;
+	const sendQ: (string | INcidRequest)[] = [];
+	const socket: WebSocket = new WebSocket(url); // 'ws://127.0.0.1:8080/ws'
 
-    const interval = setInterval(() => {
-        const request = ncidstatusQ.pop();
-        if (request)
-            sendText(request);
-    }, 100);
-    
-    socket.addEventListener("message", async (event:any) => {
-        const text: string = await event.data.text();
+	console.log('opening webSocket to:', url);
 
-        text.split('\r\n').forEach(t => {
-            if (t.trim().length > 0)
-                process_data(t.trim());
-        })
-    });
+	const interval = setInterval(() => {
+		if (currentRequest !== undefined) return;
 
-    socket.addEventListener("open", () => { 
-        uptime.set( new Date().toString());
-        console.log('Connection Established'); 
-        sendText("REQ: REREAD\n")
-    });
+		const request = sendQ.pop();
 
-    socket.addEventListener("error", async () => { 
-        console.log('Connection Error'); 
-        sendText("REQ: REREAD\n")
+		if (typeof request === 'string') {
+			console.log('client.send:', request);
+			socket.send(new Blob([request]));
+		}
 
-        await new Promise(r => setTimeout(r, 5000));
-        window.location.reload()
-    });
-    
-    socket.addEventListener("close", () => { 
-        console.log('Connection Closed');
-        //timestamp.set('Connection lost to NCID server...');
-        ncidinfo.set([]);
-        loginfo.set([]);
-    });
-    
-    const process_data = (text: string) => {
-        // if this is a caller data row
-        if (text.startsWith('CIDLOG:') || text.startsWith('HUPLOG:') || text.startsWith('CID:') || text.startsWith('HUP:')) {
-            const items = text.split('*') // break into a list of items
-            const msgType = items[0].trim() // msgType is used as the Topic
-            if (msgType === "")
-                return;
+		if (typeof request === 'object') {
+			currentRequest = request;
+			console.log('client.request:', request.sendRequest);
+			socket.send(new Blob([request.sendRequest]));
+		}
+	}, 50);
 
-            let info: { [id: string] : string; } = {};
-            info.Topic = msgType;
+	socket.addEventListener('open', () => {
+		uptime.set(new Date().toString());
+		console.log('Connection Established');
+		sendQ.push('REQ: REREAD\n');
+	});
 
-            for (let i = 1; i < items.length; i += 2)
-                if (items[i] != "")
-                    info[items[i]] = items[i+1]
+	socket.addEventListener('error', async () => {
+		console.log('Connection Error');
+		sendQ.push('REQ: REREAD\n');
 
-            // add in ID
-            info.ID = info.DATE+info.TIME+info.NMBR;
+		await new Promise((r) => setTimeout(r, 5000));
+		window.location.reload();
+	});
 
-            // add the request to the info request queue
-            ncidstatusQ.push(`REQ: INFO ${info.NMBR}&&${info.NAME}\n`)
+	socket.addEventListener('close', () => {
+		console.log('Connection Closed');
+		//timestamp.set('Connection lost to NCID server...');
+		ncidinfo.set([]);
+		loginfo.set([]);
+	});
 
-            // console.log('info:', info, text)
-            ncidinfo.update( items => {
-                const newItems = items.filter((item) => item.ID != info.ID)
-                newItems.unshift(info);
-                return newItems;
-            });
-        }
-        else {
-            if (text.startsWith('403 ')) {
-                infoLines.length = 0;
-                return;
-            }
-            if (text.startsWith('411 ')) {
-                return;
-            }
+	socket.addEventListener('message', async (event: any) => {
+		const text: string = await event.data.text();
 
-            if (text.startsWith('INFO: ')) {
-                infoLines.push(text);
+		text.split('\n').forEach((t) => {
+			const line = t.trim();
+			if (line.length > 0) {
+				if (ncidinfo_handler(line)) return;
 
-                if (text.startsWith('INFO: dial')) {
+				// console.log('client.rx:', line);
 
-                    const nmbr = text.slice(11, text.indexOf('&&'));
+				if (currentRequest) {
+					const flag = currentRequest.handler(line);
+					if (currentRequest.complete) currentRequest = undefined;
+					if (flag) return;
+				}
 
-                    ncidinfo.update( items => {
-                        const newItems = items.map( i => { 
-                            if (i.NMBR === nmbr)
-                                i.status = infoLines[1].slice(6);
+				append_to_log_handler(line);
+			}
+		});
+	});
 
-                            return i;
-                        });
+    // message handlers
+	const ncidinfo_handler = (text: string): boolean => {
+		// if this is a caller data row
+		if (
+			text.startsWith('CIDLOG:') ||
+			text.startsWith('HUPLOG:') ||
+			text.startsWith('CID:') ||
+			text.startsWith('HUP:')
+		) {
+			const items = text.split('*'); // break into a list of items
+			const msgType = items[0].trim(); // msgType is used as the Topic
 
-                        return newItems;
-                    });
-                }
-                return;
-            }
+			let info: { [id: string]: string } = {};
+			info.Topic = msgType;
 
-            loginfo.update( items => {
-                items.push(text);
-                return items;
-            });
-        }
-    };
+			for (let i = 1; i < items.length; i += 2) if (items[i] != '') info[items[i]] = items[i + 1];
 
-    const sendText = (text: string) => {
-        //console.log('send:', text)
-        socket.send(new Blob([text]))
-    };
+			// add in ID
+			info.ID = info.DATE + info.TIME + info.NMBR;
 
-    const getInfo = (name:string, nmbr: string) => {
-        return new Promise<string>((resolve, reject) => {
-            sendText('REQ: INFO ' + nmbr + '&&' + name + '\n');
+			// add the request to the info request queue
+			sendQ.push(new InfoHandler(`REQ: INFO ${info.NMBR}&&${info.NAME}\n`));
 
-            setTimeout(() => {
-                console.log('infoLines:', infoLines)
-                if (infoLines.length === 3)
-                    resolve(infoLines[1])
-                else
-                    reject('timeout');
-                }, 200);
-        });
-    }
-    
-    return {
-        close() {console.log('Closing Client'); clearInterval(interval); socket.close();},
-        send(text: string) { sendText(text);},
-        info(name:string, nmbr: string): Promise<string> { return getInfo(name, nmbr);}
-    };
-  }
+			// console.log('info:', info, text)
+			ncidinfo.update((items) => {
+				const newItems = items.filter((item) => item.ID != info.ID);
+				newItems.unshift(info);
+				return newItems;
+			});
+			return true;
+		}
+		return false;
+	};
 
+	const append_to_log_handler = (text: string): void => {
+		loginfo.update((items) => {
+			items.push(text);
+			return items;
+		});
+	};
+
+	return {
+		close() {
+			console.log('Closing Client');
+			clearInterval(interval);
+			socket.close();
+		},
+		send(text: string) {
+			sendQ.push(text);
+		}
+	};
+}

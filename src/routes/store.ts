@@ -5,7 +5,7 @@ export interface Dictionary<T> {
 }
 
 export interface INcidRequest {
-	sendRequest: string;
+	getRequest: () => string;
     handler(text: string): {suppress: boolean, isFinished:boolean};
 }
 

@@ -11,19 +11,25 @@ export function ncidClient(url: string) {
     console.log('opening webSocket to:', url);
 
     const interval = setInterval(() => {
-        if (currentRequest !== undefined) return;
+        while (currentRequest === undefined) {
+            const request = sendQ.shift();
 
-        const request = sendQ.shift();
+            if (request === undefined) // nothing else to do
+                break;
 
-        if (typeof request === 'string') {
-            //console.log('client.send:', request);
-            socket.send(new Blob([request]));
-        }
+            if (typeof request === 'string') {
+                //console.log('client.send:', request);
+                socket.send(new Blob([request]));
+            }
 
-        if (typeof request === 'object') {
-            currentRequest = request;
-            //console.log('client.request:', request.sendRequest);
-            socket.send(new Blob([request.sendRequest]));
+            if (typeof request === 'object') {
+                const text = request.getRequest();
+                if (text) {
+                    console.log('client.request:', text);
+                    currentRequest = request;
+                    socket.send(new Blob([text]));
+                }
+            }
         }
     }, 50);
 
@@ -97,7 +103,7 @@ export function ncidClient(url: string) {
             info.ID = info.DATE + info.TIME + info.NMBR;
 
             // add the request to the info request queue
-            sendQ.push(new InfoHandler(`REQ: INFO ${info.NMBR}&&${info.NAME}\n`));
+            sendQ.push(new InfoHandler(`REQ: INFO ${info.NMBR}&&${info.NAME}\n`, info.ID));
 
             // console.log('info:', info, text)
             ncidinfo.update((items) => {

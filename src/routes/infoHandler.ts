@@ -1,11 +1,25 @@
-import { ncidinfo, type INcidRequest } from './store';
+import { ncidinfo, type Dictionary, type INcidRequest } from './store';
+import { get } from 'svelte/store';
 
 export class InfoHandler implements INcidRequest {
     sendRequest: string;
+    id: string;
     infoLines: string[] = [];
 
-    constructor( request: string) {
+    constructor( request: string, id: string ) {
         this.sendRequest = request;
+        this.id = id;
+    }
+
+    getRequest(): string {
+        const tmp = get(ncidinfo);
+        if (tmp) {
+            const info = tmp.find((value) => value.ID === this.id);
+            if (info) {
+                return `REQ: INFO ${info.NMBR}&&${info.NAME}\n`;
+            }
+        }
+        return '';
     }
 
     handler(line: string): {suppress: boolean, isFinished:boolean} {
@@ -53,6 +67,10 @@ export class WaitHandler implements INcidRequest {
     constructor( request: string, waitText:string) {
         this.sendRequest = request;
         this.waitText = waitText;
+    }
+
+    getRequest(): string {
+        return this.sendRequest;
     }
 
     handler(line: string): {suppress: boolean, isFinished:boolean} {

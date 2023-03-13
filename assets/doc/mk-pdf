@@ -1,0 +1,100 @@
+#! /bin/bash
+# requires: 'md-to-pdf' to be installed (may need root): npm install -g md-to-pdf
+
+# mk-pdf
+# Modified from mk-epub
+
+# Created by Sensei on Jan 16, 2018
+# Last edited: Aug 3, 2021
+
+convert_program=md-to-pdf
+#convert_program=ebook-convert
+
+usage() {
+   cat <<EOF
+
+Usage: $prgE [options]
+
+       Create NCID-UserManual.pdf and NCID-API.pdf from markdown files.
+
+Options:
+       [-h]
+
+       -h = show this help
+
+EOF
+
+exit 1
+}
+
+prog=`basename $0 .sh`
+prgE=`basename $0` # with extension
+
+# Options on command line
+while getopts :h opt ; do
+    case $opt in
+        h) usage;;
+        :) echo "Option -$OPTARG requires an argument."; usage;;
+        *) echo "Invalid option: -$OPTARG"; usage;;
+    esac
+done
+shift $((OPTIND-1)) # skip over command line args (if any)
+
+# main routine
+
+# check for needed files
+[ -f NCID-API.md -a -f NCID-UserManual.md ] || make doc
+
+convert=`type -p $convert_program`
+[ $? = "1" ] && \
+{
+    echo "Could not find ${convert_program}"
+    exit 1
+}
+
+# create pdf user manual
+if [ $convert_program != "ebook-convert" ]
+then
+    ${convert} NCID-UserManual.md
+else
+    ${convert} \
+    NCID-UserManual.md NCID-UserManual.pdf \
+    --title "NCID User Manual" \
+    --authors "John L Chmielewski & Todd A Andrews" \
+    --tags "setup, admin" \
+    --language English \
+    --max-toc-link 300 \
+    --input-encoding UTF-8 \
+    --pdf-page-numbers \
+    --pdf-page-margin-top=24 \
+    --pdf-page-margin-right=20 \
+    --pdf-page-margin-bottom=36 \
+    --pdf-page-margin-left=30 \
+    --toc-threshold 6 \
+    --preserve-cover-aspect-ratio \
+    --sr1-search @PIPE@ \
+    --sr1-replace "|"
+fi
+
+# create pdf API document
+if [ $convert_program != "ebook-convert" ]
+then
+    ${convert} NCID-API.md
+else
+    ${convert} \
+    NCID-API.md NCID-API.pdf \
+    --title "NCID API" \
+    --authors "John L Chmielewski" \
+    --tags "API" \
+    --language English \
+    --max-toc-links 200 \
+    --pdf-page-numbers \
+    --pdf-page-margin-top=24 \
+    --pdf-page-margin-right=20 \
+    --pdf-page-margin-bottom=36 \
+    --pdf-page-margin-left=30 \
+    --toc-threshold 6 \
+    --preserve-cover-aspect-ratio \
+    --sr1-search @PIPE@ \
+    --sr1-replace "|"
+fi

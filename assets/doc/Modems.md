@@ -1,0 +1,405 @@
+<!-- Modems.md - Removable HEADER Start -->
+
+Last edited: March 29, 2022  
+
+<!-- Removable HEADER End -->
+
+## <a name="modems_top"></a>Modems
+
+> [Table of Contents](#doc_top)
+
+### Index
+
+> * [NCID Modem Requirements](#modems_specs)
+> * [Incomplete list of working modems](https://en.wikipedia.org/wiki/Network_Caller_ID)
+> * [Configuration](#modems_mconf)
+> * [Additional Modems](#addedmodems)
+> * [Distinctive Ring (DR)](#modems_dr)
+> * [Modem Caller ID Test](#modems_test)
+> * [Modem Commands that configure Caller ID](#modems_cmds)
+> * [Modem Country Codes](#modems_codes)
+> * [Selecting Modem Country codes](#modems_select)
+
+### <a name="modems_specs"></a>NCID Modem Requirements
+
+> The modem must be supported by the Operating System (Linux, FreeBSD, 
+  Macintosh, etc.) where NCID is running.
+
+> The *absolute* minimum modem feature that NCID requires is a modem that 
+  indicates RING, even if it does not support Caller ID. By default, if ncidd
+  does not detect Caller ID by ring number two, it will generate a pseudo-Caller
+  ID by setting the number to "RING" and the name to "No Caller ID". This
+  default behavior can be disabled.
+
+> The *ideal* minimum is a modem that supports Caller ID.
+
+> A modem supporting FAX and/or VOICE modes is required for the optional FAX 
+  and ANNOUNCE hangup features respectively.
+
+> Some modems come configured for the US.  If you live in a different country and
+  your modem does not work, check the ncidd.log file for the country code.  It will
+  give either the bare code or the code and country, for example:
+  
+>> Modem country code: B5 United States
+
+> See the [Modem Country Codes](#modems_codes) section for a list of country codes.
+
+> You can use **minicom** to set your country code.  It only needs to be set once.
+  Do not include it in ncidd.conf.  
+
+> For example, if you live in the UK, you would issue this command using **minicom**:
+
+>> AT+GCI=B4
+
+### <a name="modems_mconf"></a>Configuration
+
+> The tty port of the first modem is set in **ncidd.conf**. NCID packages for specific 
+  distributions (Fedora, Ubuntu, etc.) are usually pre-configured for an appropriate
+  default port. You can change the default by editing **ncidd.conf** and simply 
+  uncommenting the appropriate *ttyport* line, or add a new port.
+
+> NCID supports up to 5 modems or serial devices. See the [Additional Modems](#addedmodems) section.
+
+>>     The default tty ports:
+>>         FreeBSD:            /dev/cuaU0
+>>         Linux USB modem 0:  /dev/ttyACM0
+>>         Mac OS X USB modem: /dev/cu.usbmodem24680241
+
+>>     The tty ports in **ncidd.conf**
+>>         # Mac OS X internal modem:
+>>         set ttyport = /dev/cu.modem
+
+>>         # Mac OS X USB modem (Dualcomm, Zoom):
+>>         set ttyport = /dev/cu.usbmodem24680241
+
+>>         # Serial Port 0:
+>>         set ttyport = /dev/ttyS0
+
+>>         # Linux USB modem 0:
+>>         set ttyport = /dev/ttyACM0
+
+### <a name="addedmodems"></a>Additional Modems
+
+> The first modem or serial device is configured by setting options in the
+  **ncidd.conf** file.
+  Additional modems and serial devices can be configured in additional
+  config files, one per modem, with their file names listed in **ncidd.conf**.
+  As many as 5 modems and/or serial devices can be configured.
+
+>>    set addedmodems = "modem2.conf modem3.conf modem4.conf modem5.conf"
+
+> NOTE: This list of file names must be in quotes.
+
+> Each modem config file will define options for one additional modem or serial
+  device and should specifiy at least a unique ttyport and lineid.
+
+>>    set lineid = line2
+>>    set ttyport = /dev/ttyACM2
+
+> The lineid will be given to clients for incoming calls, and it can be specified
+  by the client to choose an outgoing line for the DIAL feature.
+
+### <a name="modems_dr"></a>Distinctive Ring (DR)
+
+> From: [DISTINCTIVE RING & MODEMS](http://www.modemsite.com/56k/dring.asp)
+
+> You can find out whether your modem supports DR by connecting to its
+  COM port via Windows HyperTerminal (or using the Unix program **minicom**)
+  and issuing the appropriate AT command; if it responds with an "OK", it does, 
+  otherwise it does not.
+  
+> The AT command to enable DR depends on the modem chipset:
+> <pre>
+<b><u>Chipset</u>                <u>Command</u></b>
+3Com/USR/TI            ATS41=1
+Rockwell/Conexant      AT-SDR=7
+Lucent/Agere           AT+VDR=1,0
+</pre>
+
+> Each chipset reports DR differently:
+
+>> 3Com reports ring <u>codes</u>:  
+
+>>>       RING A, RING B, RING C
+
+>>Rockwell reports ring <u>codes</u>:  
+
+>>>       RING 1, RING 2, RING 3
+
+>> Lucent reports the actual ring <u>cadence</u>
+   (the duration of the ringing and the
+   silent periods) with DROF/DRON messages.
+
+> As an example, one long ring usually indicates the main phone number and two short rings usually indicates the first DR phone number. Responses below were generated by two short rings:
+
+> 3Com:  
+
+>> RING B
+
+> Rockwell:  
+
+>> RING 2
+
+> Lucent:  
+
+>> DRON=5  
+   DROF=11  
+   DRON=5  
+   DROF=34
+
+### <a name="modems_test"></a>Modem Caller ID Test
+
+> Start ncidd in debug mode with verbose level 3. You do not need to start 
+  any client.
+
+>> **ncidd -Dv3**
+
+> You should get something similar to the following. The important part
+  is the last line: `Modem is fd x` where `x` is usually a number less than 10
+
+>     Started: 05/04/2011 21:48:14
+>     Server: ncidd (NCID) 0.81.15  
+>     logfile: /var/log/ncidd.log  
+>     Command line: ncidd  
+>                   -Dv3  
+>     Processed config file: /etc/ncid/ncidd.conf  
+>     Verbose level: 3  
+>     Configured to send 'cidlog' to clients.  
+>     Configured to send 'cidinfo' to clients.  
+>     Processed alias file: /etc/ncid/ncidd.alias  
+>     Leading 1 from a call required in an alias definition  
+>     CID logfile: /var/log/cidcall.log  
+>     CID logfile maximum size: 110000 bytes  
+>     Data logfile: /var/log/ciddata.log  
+>     Telephone Line Identifier: -  
+>     TTY port opened: /dev/ttyACM0  
+>     TTY port speed: 19200  
+>     TTY lock file: /var/lock/lockdev/LCK..ttyACM0  
+>     TTY port control signals enabled  
+>     Caller ID from a modem and optional gateways  
+>     Handles modem calls without Caller ID  
+>     Sent Modem 20 of 20 characters:  
+>     AT Z S0=0 E1 V1 Q0  
+>     Modem response: 26 characters in 1 read:  
+>     AT Z S0=0 E1 V1 Q0  
+>     OK  
+>     Try 1 to init modem: return = 0.  
+>     Modem initialized.  
+>     Sent Modem 11 of 11 characters:  
+>     AT+VCID=1  
+>     Modem response: 17 characters in 1 read:  
+>     AT+VCID=1  
+>     OK  
+>     Modem set for CallerID.  
+>     Network Port: 3333  
+>     Debug Mode  
+>     Not using PID file, there was no '-P' option.  
+>     Modem is fd 4
+
+> If you *did* start a client, you will get a line something like:
+
+>     Client 6 from 127.0.0.1 connected, sent call log: /var/log/cidcall.log
+
+> Next, call yourself and you should see something like:
+
+>     RING  
+>     CIDINFO: *LINE*VOIP*RING*1*TIME*21:49:49*  
+>     DATE = 0504  
+>     TIME = 2149  
+>     NMBR = 4075551212  
+>     NAME = Chmielewski Joh  
+>     CID: *DATE*05042011*TIME*2149*LINE*VOIP*NMBR*4075551212*MESG*NONE*NAME*John*  
+>     RING  
+>     CIDINFO: *LINE*VOIP*RING*2*TIME*21:49:55*
+
+> Hang up the phone and a second or two later you should see:
+
+>     CIDINFO: *LINE*VOIP*RING*0*TIME*21:50:02*
+
+> Do a &lt;CTRL-C&gt; to break out and end the test:
+
+>     ^CReceived Signal 2: Interrupt  
+>     Terminated: 05/04/2011 21:53:30
+
+> If your modem does not support CID, ncidd will generate a CID line
+  on ring 2 to indicate "No Caller ID" by setting the number to "RING"
+  and the name to "No Caller ID". You will get something like:
+
+>     RING  
+>     CIDINFO: *LINE*VOIP*RING*1*TIME*21:53:02*  
+>     RING  
+>     CIDINFO: *LINE*VOIP*RING*2*TIME*21:53:08*  
+>     CID: *DATE*05042011*TIME*2153*LINE*VOIP*NMBR*RING*MESG*NONE*NAME*No Caller ID*  
+>     RING  
+>     CIDINFO: *LINE*VOIP*RING*3*TIME*21:53:14*
+
+> If ncidd is configured to not generate a CID line for "No Caller ID" (**ncidd.conf** has *gencid=0*), you
+  will get something like:
+
+>     RING  
+>     CIDINFO: *LINE*VOIP*RING*1*TIME*21:53:02*  
+>     RING  
+>     CIDINFO: *LINE*VOIP*RING*2*TIME*21:53:08*  
+>     RING  
+>     CIDINFO: *LINE*VOIP*RING*3*TIME*21:53:14*
+
+> Hang up the phone and a second or two later you should see:
+
+>     CIDINFO: *LINE*VOIP*RING*0*TIME*21:53:21*
+
+> Do a &lt;CTRL-C&gt; to break out and end the test:
+
+>     ^CReceived Signal 2: Interrupt  
+>     Terminated: 05/04/2011 21:53:30
+
+### <a name="modems_cmds"></a>Modem Commands that configure Caller ID
+
+> **AT#CID=1**
+
+>> Enables Caller ID in USR, Texas Instruments, Rockwell compatible
+   modems (excluding software modems and Rockwell HCF),
+   Hayes, several Pace modems, PowerBit, GVC, PCTel,
+   IDC (VR series) devices, Diamond Supra (Rockwell
+   compatible).
+
+> **AT+VCID=1**    
+or    
+> **AT+FCLASS=8;+VCID=1**
+
+>> Enables Caller ID in all IS-101 modems, Lucent LT, Rockwell
+   HCF (V.90 or K56FLEX, e.g. PCI modems from Creative),
+   some Pace modems (IS-101 compatible), Multitude,
+   IDC, Cirrus Logic, most IDC modems.
+
+> **AT\#CLS=8#CID=1**
+
+>> Enables Caller ID in voice mode on some 56K USR modems, some
+   Rockwell compatible (Boca Research, Cardinal, voice Zoom).
+
+> **AT\#CC1**
+
+>> Enables Caller ID on older non-voice Aspen modems, older Cirrus Logic,
+   Motorola Voice Surfer, Phoebe.
+
+> **AT\*ID1**
+
+>> Enables Caller ID on some Motorola modems.
+
+> **AT%CCID=1**    
+or  
+> **AT%CCID=3**
+
+>> Enables Caller ID on Practical Peripherals modems.
+
+> **AT\$JSCID=4,1**    
+or    
+> **AT\$JSCD=1,0**
+
+>> Enables Caller ID on ELSA ML 56k Internet II (Netherlands) modems.
+
+> **AT#CID=1**   
+or    
+> **AT+VCID=1**
+
+>> Enables Caller ID on most modems not listed above.
+
+> **AT+FCLASS=8**  
+or  
+> **AT+FCLASS=8;+VCID=1**  
+or    
+> **AT-STE=1;+VCID=1**
+
+>> Generic commands to select Active Service Class (Voice Mode) on most
+   voice modems.
+
+> **AT+VRID=0**
+
+>> The other AT commands above enable Caller ID *during* an incoming call.
+   This command reports the most recently received Caller ID *after* a call
+   has completed.  It can sometimes be useful in testing.
+
+### <a name="modems_codes"></a>Modem Country Codes
+
+> #### [U.S. Robotics](http://www.usr.com/support/5631/5631-ug/generic.htm) Country Codes
+
+> This extended syntax command selects and indicates the country of
+operation for the modem. It determines the settings for any operational 
+parameters that need to be adjusted for national regulations or 
+telephone networks.
+
+> #### Syntax
+
+>> **+GCI=CountryCode**
+
+> #### Defined values for supported countries are:
+> <pre>
+<b><u>Country        Code</u>     <u>Country       Code</u>     <u>Country        Code</u></b>
+Austria         0A      Iceland        52      Poland          8A
+Belgium         0F      Ireland        57      Portugal        8B
+Cyprus          2D      Israel         58      Spain           A0
+Czech Republic  2E      Italy          59      Slovakia        FB
+Denmark         31      Latvia         F8      Slovenia        FC
+Estonia         F9      Liechtenstein  68      Sweden          A5
+Finland         3C      Lithuania      F7      Switzerland     A6
+France          3D      Luxembourg     69      TBR-21(Default) F6
+Germany         42      Malta          B4      Turkey          AE
+Greece          46      Netherlands    7B      United Kingdom  B4
+Hungary         51      Norway         82      United States   B5
+</pre>
+> The factory default is F6 indicating TBR-21.
+
+>TBR-21 is a European telecommunications standard to which all telephone equipment must adhere to, to be allowed connection to Europe's public switched telephone network. It is the default even for U.S. Robotics modems sold in the United States.
+
+> #### Command to report current country code value
+>> **+GCI?**
+
+> ###### Command Response:  
+>>     +GCI: CountryCode
+
+> ###### Response Example for France:  
+>>     +GCI: 3D
+
+> #### Command to report all supported country code values
+>> **+GCI=?**
+
+> ###### Command Response:  
+>>     +GCI: (CountryCode[,CountryCode][,CountryCode])
+
+> ###### Response Example:  
+>> This indicates the modem has been set for use in the United Kingdom,
+>> France or Germany.
+
+>>     +GCI: (B4,3D,42)
+
+> #### [ACM5003-M Modem](https://opengear.zendesk.com/entries/20343612-ACM5003-M-Modem-Country-Code-List) Country Code List (subset of the T.35 Country Code List used by most modems)
+> <pre>
+<b><u>Code Country</u>         <u>Code Country</u>             <u>Code Country</u></b>
+00   Japan           53   India               9C   Singapore
+07   Argentina       54   Indonesia           9F   South Africa
+09   Australia       57   Ireland             A0   Spain
+0A   Austria         58   Israel              A1   Sri Lanka
+0F   Belgium         59   Italy               A5   Sweden
+16   Brazil          61   Korea (Republic of) A6   Switzerland
+1B   Bulgaria        62   Kuwait              A9   Thailand
+20   Canada          64   Lebanon             AD   Tunisia
+25   Chile           69   Luxembourg          AE   Turkey
+26   China           6C   Malaysia            B3   United Arab Emirates
+27   Columbia        73   Mexico              B4   United Kingdom
+2D   Cyprus          77   Morocco             B5   Unites States
+2E   Czech Republic  7B   Netherlands         B7   Uruguay
+31   Denmark         7E   New Zealand         B8   Russia
+36   Egypt           82   Norway              F9   Estonia
+3C   Finland         84   Pakistan            FA   US Virgin Islands
+3D   France          89   Philippines         FB   Slovakia
+42   Germany         8A   Poland              FC   Slovenia
+46   Greece          8B   Portugal            FD   (Universal)
+50   Hong Kong       8E   Romania             FE   Taiwan
+51   Hungary         98   Saudi Arabia
+52   Iceland         99   Senegal
+</pre>
+
+### <a name="modems_select"></a>Selecting Modem Country Codes
+
+> Not every country has a separate country code.  Some countries share country codes.
+  [Here](http://doc.slitaz.org/en:handbook:pstn:countries) is a list of AT codes for
+  some modems and a table of country codes to select for country locations.

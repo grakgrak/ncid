@@ -2,10 +2,10 @@
 </script>
 
 <header>
-<span class='title'>NCID Caller ID</span>
 <nav>
 	<ul>
-		<li><a href="/">home</a></li>
+		<li><a href="/">Caller ID</a></li>
+		<li><a href="/graphana">Graphana</a></li>
 		<li><a href="/test">test</a></li>
 	</ul>
 </nav>
@@ -20,6 +20,7 @@ header {
     align-items: center;
     border-radius: 4px;
     margin-bottom: 10px;
+    font-weight: bold;
 }
 
 header * {
@@ -33,10 +34,5 @@ header li {
 header li a {
     color: black;
     text-decoration: none;
-}
-
-.title {
-    margin-left: 1em;
-    font-weight: bold;
 }
 </style>

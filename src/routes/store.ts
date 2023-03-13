@@ -6,8 +6,7 @@ export interface Dictionary<T> {
 
 export interface INcidRequest {
 	sendRequest: string;
-	complete: boolean;
-    handler(text: string): boolean;
+    handler(text: string): {suppress: boolean, isFinished:boolean};
 }
 
 

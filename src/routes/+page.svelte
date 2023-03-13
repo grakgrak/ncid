@@ -3,6 +3,7 @@
     import { loginfo, ncidinfo, selected, type Dictionary } from './store';
 	import { onMount } from "svelte";
 	import { ncidClient } from "./ncidClient";
+	import { WaitHandler } from "./infoHandler";
 
     let aliasText: string = '';
     let showModal: boolean = false;
@@ -14,7 +15,7 @@
     })
 
     const edit = async (item: Dictionary<string>) => {
-        client.send(`REQ: INFO ${item.NMBR}&&${item.NAME}\n`);
+        client.send(new WaitHandler(`REQ: INFO ${item.NMBR}&&${item.NAME}\n`, '411'));
         $selected = item;
         aliasText = $selected.NAME;
         showModal = true;
@@ -22,22 +23,20 @@
 
     const alias = async () => {
         if ($selected.alias === "NOALIAS")
-            client.send(`REQ: alias add "${$selected.NMBR}&&${aliasText}" "NAMEDEP&&${$selected.NAME}"\n`);
+            client.send(new WaitHandler(`REQ: alias add "${$selected.NMBR}&&${aliasText}" "NAMEDEP&&${$selected.NAME}"\n`, '411'));
         else
-            client.send(`REQ: alias modify "${$selected.NMBR}&&${aliasText}" "NAMEDEP&&${$selected.NAME}"\n`);
+            client.send(new WaitHandler(`REQ: alias modify "${$selected.NMBR}&&${aliasText}" "NAMEDEP&&${$selected.NAME}"\n`, '411'));
 
-        await new Promise(r => setTimeout(r, 4000));
-        client.send('REQ: UPDATE\n');
-        await new Promise(r => setTimeout(r, 4000));
+        client.send(new WaitHandler('REQ: UPDATE\n', '410'));
         client.send('WRK: ACCEPT LOG\n');
-        await new Promise(r => setTimeout(r, 4000));
-        client.send('REQ: RELOAD\n');
-        await new Promise(r => setTimeout(r, 2000));
-        client.send('REQ: REREAD\n');
+        client.send(new WaitHandler('REQ: RELOAD\n', '410'));
+        client.send(new WaitHandler('REQ: REREAD\n', '250'));
     }
 
     const blacklist = () => {
-        client.send(`REQ: black add "${$selected.NMBR}" ""\n`);
+        client.send(new WaitHandler(`REQ: black add "${$selected.NMBR}" ""\n`, '411'));
+        client.send(new WaitHandler('REQ: RELOAD\n', '410'));
+        client.send(new WaitHandler('REQ: REREAD\n', '250'));
     }
 
     const getLink = (item: Dictionary<string>) => {
@@ -78,10 +77,12 @@
             </tbody>
         </table>
     </div>
+    
     <div class="pure-u-1-4 vscroll">
         <div class="pure-g buttons">
-            <button class="pure-button button-success" on:click={()=>client.send('REQ: REREAD\n')}>Reread</button>
-            <button class="pure-button button-secondary" on:click={()=>client.send('REQ: RELOAD\n')}>Reload</button>
+            <button class="pure-button button-success" on:click={()=>client.send(new WaitHandler('REQ: REREAD\n', '250'))}>Reread</button>
+            <button class="pure-button button-secondary" on:click={()=>client.send(new WaitHandler('REQ: RELOAD\n', '410'))}>Reload</button>
+            <button class="pure-button button-secondary" on:click={()=>loginfo.set([])}>Clear Log</button>
         </div>
         <table class="pure-table otherTable">
             <tbody>

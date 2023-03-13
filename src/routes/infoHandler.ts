@@ -2,35 +2,35 @@ import { ncidinfo, type INcidRequest } from './store';
 
 export class InfoHandler implements INcidRequest {
     sendRequest: string;
-    complete: boolean = false;
     infoLines: string[] = [];
 
     constructor( request: string) {
         this.sendRequest = request;
     }
 
-    handler(text: string): boolean {
-        if (text.startsWith('403 ')) {
+    handler(line: string): {suppress: boolean, isFinished:boolean} {
+
+        if (line.startsWith('403 ')) {
             this.infoLines.length = 0;
-            return true;
+            return { suppress: true, isFinished: false };
         }
-        if (text.startsWith('411 ')) {
-            this.complete = true;
-            return true;
-        }
+        if (line.startsWith('411 '))
+            return { suppress: true, isFinished: true };
 
         // process the info messages
-        if (text.startsWith('INFO: ')) {
-            this.infoLines.push(text);
+        if (line.startsWith('INFO: ')) {
+            this.infoLines.push(line);
 
-            if (text.startsWith('INFO: dial')) {
-                const nmbr = text.slice(11, text.indexOf('&&'));
+            if (line.startsWith('INFO: dial')) {
+                const nmbr = line.slice(11, line.indexOf('&&'));
+                const status = this.infoLines[1].slice(6);
+                const alias = this.infoLines[0].slice(12);
 
                 ncidinfo.update((items) => {
                     const newItems = items.map((i) => {
                         if (i.NMBR === nmbr) {
-                            i.status = this.infoLines[1].slice(6);
-                            i.alias = this.infoLines[0].slice(12);
+                            i.status = status;
+                            i.alias = alias;
                         }
 
                         return i;
@@ -39,8 +39,23 @@ export class InfoHandler implements INcidRequest {
                     return newItems;
                 });
             }
-            return true;
+            return { suppress: true, isFinished: false };
         }
-        return false;
+
+        return { suppress: false, isFinished: false };
+    };
+};
+
+export class WaitHandler implements INcidRequest {
+    sendRequest: string;
+    waitText: string;
+
+    constructor( request: string, waitText:string) {
+        this.sendRequest = request;
+        this.waitText = waitText;
+    }
+
+    handler(line: string): {suppress: boolean, isFinished:boolean} {
+        return { suppress: false, isFinished: line.startsWith(this.waitText) };
     };
 };

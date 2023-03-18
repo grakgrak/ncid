@@ -102,9 +102,6 @@ export function ncidClient(url: string) {
             // add in ID
             info.ID = info.DATE + info.TIME + info.NMBR;
 
-            // add the request to the info request queue
-            sendQ.push(new InfoHandler(`REQ: INFO ${info.NMBR}&&${info.NAME}\n`, info.ID));
-
             // console.log('info:', info, text)
             ncidinfo.update((items) => {
                 const newItems = items.filter((item) => item.ID != info.ID);
@@ -113,6 +110,10 @@ export function ncidClient(url: string) {
                     newItems.pop();
                 return newItems;
             });
+
+            // add the fetch info request to the queue
+            sendQ.push(new InfoHandler(info.ID));
+
             return true;
         }
         return false;

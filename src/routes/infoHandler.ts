@@ -2,12 +2,10 @@ import { ncidinfo, type Dictionary, type INcidRequest } from './store';
 import { get } from 'svelte/store';
 
 export class InfoHandler implements INcidRequest {
-    sendRequest: string;
     id: string;
     infoLines: string[] = [];
 
-    constructor( request: string, id: string ) {
-        this.sendRequest = request;
+    constructor( id: string ) {
         this.id = id;
     }
 
@@ -15,9 +13,9 @@ export class InfoHandler implements INcidRequest {
         const tmp = get(ncidinfo);
         if (tmp) {
             const info = tmp.find((value) => value.ID === this.id);
-            if (info) {
+
+            if (info)
                 return `REQ: INFO ${info.NMBR}&&${info.NAME}\n`;
-            }
         }
         return '';
     }

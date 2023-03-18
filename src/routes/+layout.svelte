@@ -6,7 +6,12 @@
 	<ul>
 		<li><a href="/">Caller ID</a></li>
 		<li><a href="/graphana">Graphana</a></li>
-		<li><a href="/test">test</a></li>
+		<li><a href="/voron">Voron</a></li>
+		<li><a href="/mqtt">MQTT</a></li>
+		<li><a target="__VoronPi__" href="https://192.168.1.89:4200">[VoronPi]</a></li>
+		<li><a target="__ZeroBlocker__" href="https://192.168.1.231:4200">[ZeroBlocker]</a></li>
+		<li><a target="__NodeRedPi__" href="https://192.168.1.210:4200">[NodeRedPi]</a></li>
+		<li><a target="__Synology__" href="https://synology:5001">[Synology]</a></li>
 	</ul>
 </nav>
 </header>
@@ -27,12 +32,23 @@ header * {
     display: inline;
 }
 
-header li {
+li {
     margin: 20px;
 }
 
-header li a {
+a {
     color: black;
     text-decoration: none;
+    padding: 5px;
+}
+
+a:hover {
+    border-radius: 5px;
+    background-color: cadetblue;
+    color: whitesmoke;
+}
+
+a:active {
+    color: blue;
 }
 </style>

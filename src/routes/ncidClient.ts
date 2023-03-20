@@ -1,7 +1,7 @@
 import { loginfo, ncidinfo, uptime, type INcidRequest } from './store';
 import { InfoHandler } from './infoHandler';
 
-const MAX_ITEMS = 30; // limit the length of the ncidInfo list
+const MAX_ITEMS = 40; // limit the length of the ncidInfo list
 
 export function ncidClient(url: string) {
     let currentRequest: INcidRequest | undefined = undefined;

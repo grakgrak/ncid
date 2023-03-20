@@ -1,4 +1,5 @@
 <script lang="ts">
+    import "../../app.css";
 	import { onMount } from 'svelte';
 
 	let server_messages: string[] = [];
@@ -37,27 +38,19 @@
 	});
 </script>
 
-<div class="indicators">
-    <span class="lamp" class:lampOn={pirDR === 'T'}>PirDR</span>
-    <span class="lamp" class:lampOn={pirHW === 'T'}>PirHW</span>
-    <span class="lamp" class:lampOn={pirLR === 'T'}>PirLR</span>
-    <span class="lamp" class:lampOn={alarmStatus === 'online'}>Alarm</span>
+<div class="m-3">
+    <span class:lampOn={pirDR === 'T'} class="p-2 rounded-lg bg-slate-200">PirDR</span>
+    <span class:lampOn={pirHW === 'T'} class="p-2 rounded-lg bg-slate-200">PirHW</span>
+    <span class:lampOn={pirLR === 'T'} class="p-2 rounded-lg bg-slate-200">PirLR</span>
+    <span class:lampOn={alarmStatus === 'online'} class="p-2 rounded-lg bg-slate-200">Alarm</span>
 </div>
-<ul>
+<ul class="ml-2">
     {#each server_messages as msg}
     <li>{msg}</li>
     {/each}
 </ul>
 
 <style>
-    .indicators {
-        padding: 10px;
-    }
-    .lamp {
-        padding: 8px;
-        border-radius: 9px;
-        background-color: gray;
-    }
     .lampOn {
         background-color: green;
     }

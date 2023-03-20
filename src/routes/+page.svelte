@@ -1,4 +1,6 @@
 <script lang="ts">
+    import "../app.css";
+    import Vscroll from "./vscroll.svelte";
 	import Modal from "../lib/modal.svelte";
     import { loginfo, ncidinfo, selected, type Dictionary } from './store';
 	import { onMount } from "svelte";
@@ -42,7 +44,7 @@
     const getLink = (item: Dictionary<string>) => {
         const text: string = item.NMBR + (item.Topic === 'HUPLOG:' ? ' (hangup)' : '');
         if (item.NAME == "NO NAME")
-            return `<a target="_whocalled_" href="https://who-called.co.uk/Number/${item.NMBR}">${text}</a>`;
+            return `<a class="text-red-500 hover:text-teal-500" target="_whocalled_" href="https://who-called.co.uk/Number/${item.NMBR}">${text}</a>`;
         return text;
     };
 
@@ -50,143 +52,62 @@
     const formatTime = (time: string) => `${time.slice(0,2)}:${time.slice(2)}`;
 </script>
 
-<div class="pure-g main">
-    <div class="pure-u-3-4 vscroll">
-        <table class="pure-table-striped">
+<div class="flex text-grey-300">
+    <Vscroll width="w-3/4">
+        <table class="table-auto">
             <tbody>
                 <tr>
-                    <th style="width: 40px"></th>
-                    <th>Date</th>
-                    <th>Time</th>
-                    <th>Number</th>
-                    <th>Alias</th>
-                    <th style="width: 120px">ID</th>
+                    <th class="w-10"></th>
+                    <th class="text-left p-2">Date</th>
+                    <th class="text-left p-2">Time</th>
+                    <th class="text-left p-2">Number</th>
+                    <th class="text-left p-2">Alias</th>
+                    <th class="text-left p-2 w-28">ID</th>
                 </tr>
         {#each $ncidinfo as data (data.ID)}
-            <tr>
+            <tr  class="odd:bg-slate-800 even:bg-slate-700">
                 <td>
-                    <button class="pure-button button-success" class:button-black={data.status === 'black number'} on:click={() => edit(data)}>Edit</button>
+                    <button class="btn-xs btn-primary rounded w-12" class:bg-black={data.status === 'black number'} on:click={() => edit(data)}>Edit</button>
                 </td>
-                <td class="text">{formatDate(data.DATE)}</td>
-                <td class="text">{formatTime(data.TIME)}</td>
-                <td class="text">{@html getLink(data)}</td>
-                <td class:noname={data.NAME === "NO NAME"} class="text">{data.NAME}</td>
-                <td class="text">{data.ID}</td>
+                <td class="text-xs pl-2">{formatDate(data.DATE)}</td>
+                <td class="text-xs pl-2">{formatTime(data.TIME)}</td>
+                <td class="text-xs pl-2">{@html getLink(data)}</td>
+                <td class:text-red-500={data.NAME === "NO NAME"} class="text-xs pl-2">{data.NAME}</td>
+                <td class="text-xs pl-2">{data.ID}</td>
             </tr>
         {/each}
             </tbody>
         </table>
-    </div>
+    </Vscroll>
     
-    <div class="pure-u-1-4 vscroll">
-        <div class="pure-g buttons">
-            <button class="pure-button button-success" on:click={()=>client.send(new WaitHandler('REQ: REREAD\n', '250'))}>Reread</button>
-            <button class="pure-button button-secondary" on:click={()=>client.send(new WaitHandler('REQ: RELOAD\n', '410'))}>Reload</button>
-            <button class="pure-button button-secondary" on:click={()=>loginfo.set([])}>Clear Log</button>
+    <Vscroll width="w-1/4">
+        <div>
+            <button class="btn-sm btn-secondary rounded" on:click={()=>client.send(new WaitHandler('REQ: REREAD\n', '250'))}>Reread</button>
+            <button class="btn-sm btn-accent rounded" on:click={()=>client.send(new WaitHandler('REQ: RELOAD\n', '410'))}>Reload</button>
+            <button class="btn-sm btn-accent rounded" on:click={()=>loginfo.set([])}>Clear Log</button>
         </div>
-        <table class="pure-table otherTable">
+        <table class="mt-3">
             <tbody>
                 {#each $loginfo as log}
                     <tr>
-                        <td class="text">{log}</td>
+                        <td class="text-sm">{log}</td>
                     </tr>
                 {/each}
             </tbody>
         </table>
-    </div>
+    </Vscroll>
 </div>
 
 <Modal bind:showModal>
-	<h2 slot="header">
+	<h2 slot="header" class="text-orange-500 m-3">
         {$selected !== undefined ? $selected.NAME : ''}
 	</h2>
 
-    <form class="pure-form-stacked" method="dialog">
-        <label for="alias">Enter new Alias</label>
-        <input type="text" id="alias" placeholder="Alias" bind:value={aliasText} />
-        <button type="submit" class="pure-button button-primary" on:click={alias}>Save Alias</button>
-        <button type="submit" class="pure-button button-primary" on:click={blacklist}>Save Blacklist</button>
+    <form class="flex flex-col m-3" method="dialog">
+        <label for="alias" class="text-slate-400 pl-1">Enter new Alias</label>
+        <input type="text" id="alias" placeholder="Alias" class="pl-1 m-1 rounded" bind:value={aliasText} />
+        <button type="submit" class="btn-primary m-1 rounded" on:click={alias}>Save Alias</button>
+        <button type="submit" class="btn-primary m-1 rounded" on:click={blacklist}>Save Blacklist</button>
     </form>
 </Modal>
 
-<style>
-.main { margin-top: 4px;}
-.text {
-    font-size: small;
-    font-weight: 600;
-    padding: 1px 8px;
-}
-.noname {
-    font-size: small;
-    font-weight: 600;
-    padding: 1px 8px;
-    color: darkred;
-}
-
-.button-black,
-.button-success,
-.button-primary,
-.button-secondary {
-    color: white;
-    border-radius: 5px;
-    padding: 4px 16px;
-    margin: 1px 4px 1px 0;
-    font-size: 80%;
-}
-
-.button-secondary {
-    background: rgb(207, 94, 19);
-}
-
-.button-success,
-.button-primary {
-    background: rgb(28, 184, 65);
-}
-
-.button-black {
-    background: black;
-}
-
-.vscroll {
-    overflow: auto;
-    display: flex;
-    flex-direction: column;
-    height: calc(100vh - 100px);
-}
-
-/* .header {
-    border-radius: 5pt;
-    background-color: silver;
-    padding: 16px;
-    margin: 0;
-}
-
-.timestamp {
-    margin-left: 20em;
-    color:blueviolet;
-    font-size: large;
-} */
-
-::-webkit-scrollbar-track
-{
-	background-color: rgb(192, 192, 192);
-	border-radius: 10px;
-}
-
-::-webkit-scrollbar
-{
-	width: 10px;
-	background-color: rgb(222, 226, 234);
-}
-
-::-webkit-scrollbar-thumb
-{
-	border-radius: 10px;
-    background-color: rgb(104, 101, 101);
-}
-
-th {
-    text-align: left;
-    padding-left: 8px;
-}
-</style>

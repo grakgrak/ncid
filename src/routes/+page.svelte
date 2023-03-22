@@ -54,7 +54,7 @@
 
 <div class="flex text-grey-300">
     <Vscroll width="w-3/4">
-        <table class="table-auto">
+        <table class="table table-compact table-zebra">
             <tbody>
                 <tr>
                     <th class="w-10"></th>
@@ -65,10 +65,14 @@
                     <th class="text-left p-2 w-28">ID</th>
                 </tr>
         {#each $ncidinfo as data (data.ID)}
-            <tr  class="odd:bg-slate-800 even:bg-slate-700">
-                <td>
-                    <button class="btn-xs btn-primary rounded w-12" class:bg-black={data.status === 'black number'} on:click={() => edit(data)}>Edit</button>
-                </td>
+            <tr class="hover">
+                <th>
+                    <button class="btn-xs btn-primary rounded w-8" class:bg-black={data.status === 'black number'} on:click={() => edit(data)}>
+                        <svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+                            <path d="M13.23 1h-1.46L3.52 9.25l-.16.22L1 13.59 2.41 15l4.12-2.36.22-.16L15 4.23V2.77L13.23 1zM2.41 13.59l1.51-3 1.45 1.45-2.96 1.55zm3.83-2.06L4.47 9.76l8-8 1.77 1.77-8 8z"/>
+                        </svg>
+                    </button>
+                </th>
                 <td class="text-xs pl-2">{formatDate(data.DATE)}</td>
                 <td class="text-xs pl-2">{formatTime(data.TIME)}</td>
                 <td class="text-xs pl-2">{@html getLink(data)}</td>

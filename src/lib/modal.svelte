@@ -10,15 +10,15 @@
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <dialog
-    class="bg-white rounded-lg"
+    class="rounded-lg text-white"
 	bind:this={dialog}
 	on:close={() => (showModal = false)}
 	on:click|self={() => dialog.close()}
 >
 	<div on:click|stopPropagation>
-        <button class="btn-xs bg-white absolute right-0 top-0 w-7" on:click={() => dialog.close()}>
-            <svg width="16px" height="16px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path fill-rule="evenodd" clip-rule="evenodd" d="M19.207 6.207a1 1 0 0 0-1.414-1.414L12 10.586 6.207 4.793a1 1 0 0 0-1.414 1.414L10.586 12l-5.793 5.793a1 1 0 1 0 1.414 1.414L12 13.414l5.793 5.793a1 1 0 0 0 1.414-1.414L13.414 12l5.793-5.793z" fill="#000000"/>
+        <button class="btn-xs absolute right-0 top-0 w-7" on:click={() => dialog.close()}>
+            <svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" fill="currentColor">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M8 8.707l3.646 3.647.708-.707L8.707 8l3.647-3.646-.707-.708L8 7.293 4.354 3.646l-.707.708L7.293 8l-3.646 3.646.707.708L8 8.707z"/>
             </svg>
         </button>
 		<slot name="header" />
@@ -34,9 +34,9 @@
 		border: none;
 		padding: 0 8pt;
 	} */
-	dialog::backdrop {
+	/* dialog::backdrop {
 		background: rgba(0, 0, 0, 0.3);
-	}
+	} */
 	/* dialog > div {
 		padding: 0 1em 1.5em 1em;
 	} */

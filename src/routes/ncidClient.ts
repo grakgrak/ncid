@@ -1,7 +1,6 @@
-import { loginfo, ncidinfo, uptime, type INcidRequest } from './store';
+import { loginfo, maxRows, ncidinfo, uptime, type INcidRequest } from './store';
+import { get } from 'svelte/store';
 import { InfoHandler } from './infoHandler';
-
-const MAX_ITEMS = 40; // limit the length of the ncidInfo list
 
 export function ncidClient(url: string) {
     let currentRequest: INcidRequest | undefined = undefined;
@@ -103,10 +102,11 @@ export function ncidClient(url: string) {
             info.ID = info.DATE + info.TIME + info.NMBR;
 
             // console.log('info:', info, text)
+            const maxRowCount = get(maxRows);
             ncidinfo.update((items) => {
                 const newItems = items.filter((item) => item.ID != info.ID);
                 newItems.unshift(info);
-                if (newItems.length > MAX_ITEMS)   // limit the length of the list
+                while (newItems.length > maxRowCount)   // limit the length of the list
                     newItems.pop();
                 return newItems;
             });

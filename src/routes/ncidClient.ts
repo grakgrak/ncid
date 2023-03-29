@@ -1,6 +1,8 @@
-import { loginfo, maxRows, ncidinfo, uptime, type INcidRequest } from './store';
+import { loginfo, maxRows, ncidinfo, ncidStatusCache, uptime, type Dictionary, type INcidRequest } from './store';
 import { get } from 'svelte/store';
 import { InfoHandler } from './infoHandler';
+
+const FILTER_DAYS = 30;
 
 export function ncidClient(url: string) {
     let currentRequest: INcidRequest | undefined = undefined;
@@ -17,7 +19,10 @@ export function ncidClient(url: string) {
                 break;
 
             if (typeof request === 'string') {
-                //console.log('client.send:', request);
+                loginfo.update((items) => {
+                    items.push("Send: " + request);
+                    return items;
+                });
                 socket.send(new Blob([request]));
             }
 
@@ -82,13 +87,19 @@ export function ncidClient(url: string) {
         });
     });
 
+    const isCurrentDate = (info:any): boolean => {
+        const date = new Date( Number(info.DATE.slice(4)), Number(info.DATE.slice(0,2)) - 1, Number(info.DATE.slice(2,4)));
+        const dateOffset = (24*60*60*1000) * FILTER_DAYS;
+        return date.getTime() >= ((new Date()).getTime() - dateOffset);
+    }
+
     // message handlers
     const ncidinfo_handler = (line: string): boolean => {
         // console.log('client.rx:', line);
 
         // if this is a caller data row
         if ( line.startsWith('CIDLOG:') || line.startsWith('HUPLOG:') || line.startsWith('CID:') || line.startsWith('HUP:')) {
-            const info: { [id: string]: string; } = {};
+            const info: Dictionary<string> = {};
             const items = line.split('*'); // break into a list of items
             const msgType = items[0].trim(); // msgType is used as the Topic
 
@@ -105,14 +116,21 @@ export function ncidClient(url: string) {
             const maxRowCount = get(maxRows);
             ncidinfo.update((items) => {
                 const newItems = items.filter((item) => item.ID != info.ID);
-                newItems.unshift(info);
+
+                if (isCurrentDate(info))
+                    newItems.unshift(info); // add in the new row
+
                 while (newItems.length > maxRowCount)   // limit the length of the list
                     newItems.pop();
+
                 return newItems;
             });
 
-            // add the fetch info request to the queue
-            sendQ.push(new InfoHandler(info.ID));
+            info.status = get(ncidStatusCache)[info.NMBR];
+            
+            // add the fetch info request to the queue but only for NO NAME rows
+            if (info.NAME === 'NO NAME' && info.status === undefined)
+                sendQ.push(new InfoHandler(info.ID));
 
             return true;
         }

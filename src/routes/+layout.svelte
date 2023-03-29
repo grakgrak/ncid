@@ -1,12 +1,22 @@
 <script lang="ts">
     import "../app.css";
-	import Modal from "../lib/modal.svelte";
-    import Link from "../lib/link.svelte";
-    import { maxRows } from './store';
+	import Modal from "$lib/modal.svelte";
+    import Link from "$lib/link.svelte";
+    import { maxRows } from "./store";
+	import { browser } from "$app/environment";
+
+    const updateTheme = (theme: string): void => {
+        if (browser)
+            document?.querySelector("[data-theme]")?.setAttribute("data-theme", theme);
+    }
+
+    let darkTheme: boolean = true;
+    $: updateTheme( darkTheme ? "dark" : "light");
+
+    let showAllRows: boolean = false;
+    $: $maxRows = showAllRows ? 999 : 100;
 
     let showModal: boolean = false;
-    let showAllRows: boolean = false;
-    $: $maxRows = showAllRows ? 99 : 20;
 </script>
 
 <header class="font-bold rounded-lg m-2 h-10 bg-gray-300">
@@ -15,6 +25,7 @@
 		<li><Link href="/graphana">Graphana</Link></li>
 		<li><Link href="/voron">Voron</Link></li>
 		<li><Link href="/mqtt">MQTT</Link></li>
+		<li><Link target="__Rpi4__" href="https://192.168.1.140:4200">[Rpi 4]</Link></li>
 		<li><Link target="__VoronPi__" href="https://192.168.1.89:4200">[VoronPi]</Link></li>
 		<li><Link target="__ZeroBlocker__" href="https://192.168.1.231:4200">[ZeroBlocker]</Link></li>
 		<li><Link target="__NodeRedPi__" href="https://192.168.1.210:4200">[NodeRedPi]</Link></li>
@@ -36,8 +47,12 @@
 
     <div class="form-control">
         <label class="label cursor-pointer">
-          <span class="label-text">Show all NCID rows:</span> 
-          <input type="checkbox" class="toggle toggle-sm" bind:checked={showAllRows} />
+            <div class="label-text">Show all NCID rows:</div> 
+            <input type="checkbox" class="toggle toggle-sm" bind:checked={showAllRows} />
         </label>
-      </div>
+        <label class="label cursor-pointer">
+            <div class="label-text">Dark theme:</div> 
+            <input type="checkbox" class="toggle toggle-sm" bind:checked={darkTheme} />
+        </label>
+</div>
 </Modal>

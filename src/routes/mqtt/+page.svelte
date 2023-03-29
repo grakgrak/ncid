@@ -75,7 +75,7 @@
     <span class:bg-green-700={alarmStatus === 'online'} class="p-2 rounded-lg bg-slate-200">Alarm</span>
 </div>
 
-<ul class="ml-2 text-white">
+<ul class="ml-2">
     {#each server_messages as msg}
     <li>{msg}</li>
     {/each}

@@ -1,4 +1,4 @@
-import { ncidinfo, type Dictionary, type INcidRequest } from './store';
+import { ncidinfo, ncidStatusCache, type Dictionary, type INcidRequest } from './store';
 import { get } from 'svelte/store';
 
 export class InfoHandler implements INcidRequest {
@@ -37,6 +37,13 @@ export class InfoHandler implements INcidRequest {
                 const nmbr = line.slice(11, line.indexOf('&&'));
                 const status = this.infoLines[1].slice(6);
                 const alias = this.infoLines[0].slice(12);
+
+                // update the cached status
+                if (status === 'black number')
+                    ncidStatusCache.update((cache) => {
+                        cache[nmbr] = status;
+                        return cache;
+                    });
 
                 ncidinfo.update((items) => {
                     const newItems = items.map((i) => {

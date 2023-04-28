@@ -1,7 +1,7 @@
 <script lang="ts">
     import "../app.css";
-	import Modal from "$lib/modal.svelte";
-    import Link from "$lib/link.svelte";
+	import Modal from "$lib/components/Modal.svelte";
+    import Link from "$lib/components/Link.svelte";
     import { maxRows } from "./store";
 	import { browser } from "$app/environment";
 
@@ -25,6 +25,7 @@
 		<li><Link href="/graphana">Graphana</Link></li>
 		<li><Link href="/voron">Voron</Link></li>
 		<li><Link href="/mqtt">MQTT</Link></li>
+		<li><Link href="/scratchpad">ScratchPad</Link></li>
 		<li><Link target="__Rpi4__" href="https://192.168.1.140:4200">[Rpi 4]</Link></li>
 		<li><Link target="__VoronPi__" href="https://192.168.1.89:4200">[VoronPi]</Link></li>
 		<li><Link target="__ZeroBlocker__" href="https://192.168.1.231:4200">[ZeroBlocker]</Link></li>

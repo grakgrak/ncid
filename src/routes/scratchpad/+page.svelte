@@ -47,6 +47,11 @@
     }
 </script>
 
+<svelte:head>
+	<title>ScratchPad</title>
+	<meta name="description" content="ScratchPad" />
+</svelte:head>
+
 <div class="p-2">
     {counter}<button class="btn-primary btn rounded ml-2" on:click={handleClick}>click</button>
     {$timestamp}

@@ -65,6 +65,11 @@
 	});
 </script>
 
+<svelte:head>
+	<title>MQTT</title>
+	<meta name="description" content="MQTT" />
+</svelte:head>
+
 <div class="flex h-96">
 <div class="flex flex-col justify-between w-50 p-1">
     <div>{uptime}</div>

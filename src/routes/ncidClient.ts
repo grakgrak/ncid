@@ -5,13 +5,15 @@ import { InfoHandler } from './infoHandler';
 const FILTER_DAYS = 30;
 
 export function ncidClient(url: string) {
+    let socket: WebSocket; // 'ws://127.0.0.1:8080/ws'
     let currentRequest: INcidRequest | undefined = undefined;
     const sendQ: (string | INcidRequest)[] = [];
-    const socket: WebSocket = new WebSocket(url); // 'ws://127.0.0.1:8080/ws'
 
-    console.log('opening webSocket to:', url);
+    // process the sendQ
+    const sendInterval = setInterval(() => {
+        if (socket.readyState !== WebSocket.OPEN)
+            return;
 
-    const interval = setInterval(() => {
         while (currentRequest === undefined) {
             const request = sendQ.shift();
 
@@ -37,56 +39,7 @@ export function ncidClient(url: string) {
         }
     }, 50);
 
-    socket.addEventListener('open', () => {
-        uptime.set(new Date().toString());
-        console.log('Connection Established');
-        sendQ.push('REQ: REREAD\n');
-    });
-
-    socket.addEventListener('error', async () => {
-        console.log('Connection Error');
-        sendQ.push('REQ: REREAD\n');
-
-        await new Promise((r) => setTimeout(r, 5000));
-        window.location.reload();
-    });
-
-    socket.addEventListener('close', () => {
-        console.log('Connection Closed');
-        //timestamp.set('Connection lost to NCID server...');
-        ncidinfo.set([]);
-        loginfo.set([]);
-    });
-
-    socket.addEventListener('message', async (event: any) => {
-        const text: string = await event.data.text();
-
-        // the received data may contain multiple lines
-        text.split('\n').forEach((t) => {
-            
-            const line = t.trim();
-            
-            if (line.length > 0) {
-                if (ncidinfo_handler(line)) 
-                    return;
-
-                if (currentRequest) {
-                    const {suppress, isFinished } = currentRequest.handler(line);
-                    if (isFinished) 
-                        currentRequest = undefined;
-                    if (suppress) 
-                        return;
-                }
-
-                // add the line to the log
-                loginfo.update((items) => {
-                    items.push(line);
-                    return items;
-                });
-            }
-        });
-    });
-
+    // test date of NCID data
     const isCurrentDate = (info:any): boolean => {
         const date = new Date( Number(info.DATE.slice(4)), Number(info.DATE.slice(0,2)) - 1, Number(info.DATE.slice(2,4)));
         const dateOffset = (24*60*60*1000) * FILTER_DAYS;
@@ -137,13 +90,79 @@ export function ncidClient(url: string) {
         return false;
     };
 
+    // process the incomming NCID data
+    const processMessage = (text: string) => {
+            // the received data may contain multiple lines
+            text.split('\n').forEach((t) => {
+                
+                const line = t.trim();
+                
+                if (line.length > 0) {
+                    if (ncidinfo_handler(line)) 
+                        return;
+    
+                    if (currentRequest) {
+                        const {suppress, isFinished } = currentRequest.handler(line);
+                        if (isFinished) 
+                            currentRequest = undefined;
+                        if (suppress) 
+                            return;
+                    }
+    
+                    // add the line to the log
+                    loginfo.update((items) => {
+                        items.push(line);
+                        return items;
+                    });
+                }
+            });
+    };
+
+    // setup the websocket connection
+    const connectToWebSocket = () => {
+        console.log('Opening webSocket to:', url);
+
+        socket = new WebSocket(url); // 'ws://127.0.0.1:8080/ws'
+
+        socket.addEventListener('open', () => {
+            uptime.set(new Date().toString());
+            console.log('Connection Established');
+            sendQ.push('REQ: REREAD\n');
+        });
+    
+        socket.addEventListener('error', async () => {
+            console.log('Connection Error');
+            sendQ.push('REQ: REREAD\n');
+    
+            await new Promise((r) => setTimeout(r, 5000));
+            window.location.reload();
+        });
+    
+        socket.addEventListener('close', () => {
+            console.log('Connection Closed');
+
+            // ncidinfo.set([]);
+            // loginfo.set([]);
+
+            setTimeout(connectToWebSocket, 5000);  // reconnect to websocket after 5 seconds
+        });
+    
+        socket.addEventListener('message', async (event: any) => {
+            const text: string = await event.data.text();
+            processMessage(text);
+        });
+    };
+
+    connectToWebSocket();
+
+    // returns 2 functions to the caller
     return {
-        close() {
+        close(): void {
             console.log('Closing Client');
-            clearInterval(interval);
+            clearInterval(sendInterval);
             socket.close();
         },
-        send(text: string) {
+        send(text: string | INcidRequest): void {
             sendQ.push(text);
         }
     };

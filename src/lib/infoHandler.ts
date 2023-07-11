@@ -1,4 +1,4 @@
-import { ncidinfo, ncidStatusCache, type Dictionary, type INcidRequest } from './store';
+import { ncidinfo, ncidStatusCache, type INcidRequest } from './store';
 import { get } from 'svelte/store';
 
 export class InfoHandler implements INcidRequest {

@@ -1,6 +1,6 @@
 <!-- AgGrid.svelte -->
 <script lang="ts">
-    import {timestamp} from '../store';
+    import {timestamp} from '../../lib/store';
     import "../../app.css";
     import type { PageData } from './$types';
     import { json, error } from "@sveltejs/kit";

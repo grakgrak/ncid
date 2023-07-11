@@ -11,7 +11,7 @@ export function ncidClient(url: string) {
 
     // process the sendQ
     const sendInterval = setInterval(() => {
-        if (socket.readyState !== WebSocket.OPEN)
+        if (socket === undefined || socket.readyState !== WebSocket.OPEN)
             return;
 
         while (currentRequest === undefined) {
@@ -62,8 +62,9 @@ export function ncidClient(url: string) {
                 if (items[i] != '')
                     info[items[i]] = items[i + 1];
 
-            // add in ID
-            info.ID = info.DATE + info.TIME + info.NMBR;
+            // add in ID - reformat the date into YYYYMMDD
+            const date = info.DATE;
+            info.ID = date.slice(4,8) + date.slice(0,4) + info.TIME + info.NMBR;
 
             // console.log('info:', info, text)
             const maxRowCount = get(maxRows);
@@ -153,14 +154,15 @@ export function ncidClient(url: string) {
         });
     };
 
-    connectToWebSocket();
-
     // returns 2 functions to the caller
     return {
         close(): void {
             console.log('Closing Client');
             clearInterval(sendInterval);
             socket.close();
+        },
+        connect(): void {
+            connectToWebSocket();
         },
         send(text: string | INcidRequest): void {
             sendQ.push(text);

@@ -1,12 +1,12 @@
 import type { PageServerLoad } from './$types';
- 
+import { DB_PATH } from '$env/static/private';
+
 import { json, error } from "@sveltejs/kit";
 
 import Database from "better-sqlite3";
-import fs from "node:fs";
 
 export const load = (({ params:any }) => {
-    let db = new Database(fs.readFileSync("superheroes.db"));
+    const db = new Database(DB_PATH + 'superheroes.db', { verbose: console.log });
 
     const query = "aqua";
 

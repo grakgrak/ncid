@@ -1,9 +1,11 @@
 <script lang="ts">
     export let width:string = "";
+    export let height:string = "h-[calc(100vh-80px)]"
 </script>
 
 <div class="
  {width}
+ {height}
  flex
  flex-col
  m-1
@@ -17,9 +19,3 @@
  vscroll">
     <slot></slot>
 </div>
-
-<style>
-    .vscroll {
-        height: calc(100vh - 100px);
-    }
-</style>

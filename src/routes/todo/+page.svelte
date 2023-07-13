@@ -5,10 +5,12 @@
     import type { Task } from "$lib/server/db/types";
     import type { PageServerData } from './$types';
 	import { TaskState } from "$lib/TaskState";
+	import { enhance } from "$app/forms";
 
     export let data: PageServerData;
     
     const flipDurationMs = 200;
+    const columnTitles = ['Todo', 'In progress', 'Done'];
 
     async function updateState(id: number, state: TaskState) {
         const data = new FormData();
@@ -73,14 +75,14 @@
 </svelte:head>
 
 <form method="POST" action="?/newtask">
-    <input name="task" class="m-3 p-1" bind:value={newItem} type="text" placeholder="new todo item.." autofocus>
+    <input name="task" class="m-3 p-1 w-96" bind:value={newItem} type="text" placeholder="new todo item.." autofocus>
     <button class="btn-sm btn-primary">Add</button>
 </form>
 
 <div class="h-[calc(100vh-140px)] overflow-hidden flex flex-row">
     {#each taskList as list, idx}
     <div class="flex flex-col w-1/3">
-        <h2>Todo</h2>
+        <h1 class="text-2xl font-bold ml-2">{columnTitles[idx]}</h1>
         <section 
             class="bg-slate-600 p-1 m-1 h-full rounded-md overflow-y-auto scrollbar-thin scrollbar-track-rounded hover:scrollbar-thumb-slate-500 scrollbar-thumb-rounded scrollbar-thumb-gray-600 scrollbar-track-gray-200"
             use:dndzone={{ items: list, flipDurationMs}}

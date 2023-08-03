@@ -39,7 +39,7 @@ You can preview the production build with `npm run preview`.
 
 ## Windows service
 
-Start serivce 
+Start serivce
 
 ```
 nssm NCID start

@@ -5,8 +5,8 @@
 
 	function subscribe() {
 		const sse = new EventSource('/test?topic=hello');
-		
-        sse.onmessage = (e) => {
+
+		sse.onmessage = (e) => {
 			server_message = e.data;
 		};
 

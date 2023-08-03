@@ -1,9 +1,10 @@
 <script lang="ts">
-    export let width:string = "";
-    export let height:string = "h-[calc(100vh-80px)]"
+	export let width = '';
+	export let height = 'h-[calc(100vh-80px)]';
 </script>
 
-<div class="
+<div
+	class="
  {width}
  {height}
  flex
@@ -16,6 +17,7 @@
  hover:scrollbar-thumb-gray-600
  scrollbar-track-gray-200
  overflow-auto
- vscroll">
-    <slot></slot>
+ vscroll"
+>
+	<slot />
 </div>

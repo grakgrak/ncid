@@ -1,21 +1,21 @@
 import type { PageServerLoad } from './$types';
 import { DB_PATH } from '$env/static/private';
 
-import { json, error } from "@sveltejs/kit";
+import { error } from '@sveltejs/kit';
 
-import Database from "better-sqlite3";
+import Database from 'better-sqlite3';
 
-export const load = (({ params:any }) => {
-    const db = new Database(DB_PATH + 'superheroes.db', { verbose: console.log });
+export const load = (() => {
+	const db = new Database(DB_PATH + 'superheroes.db', { verbose: console.log });
 
-    const query = "aqua";
+	const query = 'aqua';
 
-    if (!query) {
-        throw error(401, "Query (`?q=`) is required");
-    }
-    const stmt = db.prepare("select * from superheroes where name like ?");
-  
-    return {
-        post: stmt.all(`%${query}%`)
-    };
+	if (!query) {
+		throw error(401, 'Query (`?q=`) is required');
+	}
+	const stmt = db.prepare('select * from superheroes where name like ?');
+
+	return {
+		post: stmt.all(`%${query}%`)
+	};
 }) satisfies PageServerLoad;

@@ -8,7 +8,7 @@
 <center>Copyright &copy; 2014-2018</center>
 <center>Author: John L Chmielewski</center>
 
-This document contains information needed to develop gateways, clients, client output modules and even a server for NCID (Network Caller ID).  It also contains test scripts for clients, gateways and servers.
+This document contains information needed to develop gateways, clients, client output modules and even a server for NCID (Network Caller ID). It also contains test scripts for clients, gateways and servers.
 
 ncid-sdk.md - this file
 

@@ -11,9 +11,10 @@ Last edited: Sep 26, 2021
 > [Description](#install_des)
 
 ### <a name="install_des"></a>Description
-> NCID supports the operating systems indicated here.  These are install
-  instructions for each of the operating systems. There is also a generic
-  install with compile instructions.
+
+> NCID supports the operating systems indicated here. These are install
+> instructions for each of the operating systems. There is also a generic
+> install with compile instructions.
 
 > [INSTALL (generic)](#instl_generic_top)  
 > [INSTALL-DEB (Debian, Raspbian or Ubuntu)](#instl_deb_top)  

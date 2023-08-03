@@ -1,6 +1,6 @@
 <!-- Verbose.md - Removable HEADER Start -->
 
-Last edited: Mar 1, 2022  
+Last edited: Mar 1, 2022
 
 <!-- Removable HEADER End -->
 
@@ -10,19 +10,21 @@ Last edited: Mar 1, 2022
 
 ### Index
 
-> * [cidupdate verbose levels](#verbose_cidupdate)
-  * [ncid verbose levels](#verbose_ncid)
-  * [ncidd verbose levels](#verbose_ncidd)
-  * [ncid2ncid verbose levels](#verbose_ncid2ncid)
-  * [ncidnumberinfo verbose levels](#verbose_ncidnumberinfo)
-  * [obi2ncid verbose levels](#verbose_obi2ncid)
-  * [rn2ncid verbose levels](#verbose_rn2ncid)
-  * [sip2ncid verbose levels](#verbose_sip2ncid)
-  * [wc2ncid verbose levels](#verbose_wc2ncid)
-  * [xdmf2ncid verbose levels](#verbose_xdmf2ncid)
+> - [cidupdate verbose levels](#verbose_cidupdate)
+
+- [ncid verbose levels](#verbose_ncid)
+- [ncidd verbose levels](#verbose_ncidd)
+- [ncid2ncid verbose levels](#verbose_ncid2ncid)
+- [ncidnumberinfo verbose levels](#verbose_ncidnumberinfo)
+- [obi2ncid verbose levels](#verbose_obi2ncid)
+- [rn2ncid verbose levels](#verbose_rn2ncid)
+- [sip2ncid verbose levels](#verbose_sip2ncid)
+- [wc2ncid verbose levels](#verbose_wc2ncid)
+- [xdmf2ncid verbose levels](#verbose_xdmf2ncid)
 
 ### <a name="verbose_cidupdate"></a>cidupdate verbose levels
->  Higher levels include lower levels.
+
+> Higher levels include lower levels.
 
 > LEVELR:
 
@@ -94,7 +96,8 @@ Last edited: Mar 1, 2022
         show terminated [by LEVEL8] with date and time
 
 ### <a name="verbose_ncid"></a>ncid verbose levels
->  Higher levels include lower levels.
+
+> Higher levels include lower levels.
 
 > LEVEL9:
 
@@ -190,7 +193,8 @@ Last edited: Mar 1, 2022
         indicate history message and help fonts saved
 
 ### <a name="verbose_ncidd"></a>ncidd server verbose levels
->  Higher levels include lower levels.
+
+> Higher levels include lower levels.
 
 LEVELR
 
@@ -283,7 +287,7 @@ LEVELE
         detected NetCallerID or gateway format
         indicate number without RING is Call Waiting (WID)
         show alias matching Begin: and End: with time and result
-        show open, Begin, End and exit status for external cidupdate, ncidutil, and hangup scripts 
+        show open, Begin, End and exit status for external cidupdate, ncidutil, and hangup scripts
 
 > LEVEL3:
 
@@ -342,7 +346,6 @@ LEVELE
         show WRK: lines
         show RESP: lines
         indicate case where finishCID did not receive full call info
-
 
 > LEVEL1:
 
@@ -420,11 +423,12 @@ LEVELE
         indicate success or failure to parse ifaddr to set the interface
         indicate which country code is set for number formatting
         show number display format selected if country is NANPA
-        show error in rstarting external cidupdate, ncidutil, and hangup scripts 
+        show error in rstarting external cidupdate, ncidutil, and hangup scripts
         indicate hangup script did not return hangup or OK
 
 ### <a name="verbose_ncid2ncid"></a>ncid2ncid gateway verbose levels
->  Higher levels include lower levels.
+
+> Higher levels include lower levels.
 
 > LEVELE
 
@@ -499,7 +503,8 @@ LEVELE
         show terminated with date and time
 
 ### <a name="verbose_ncidnumberinfo"></a>ncidnumberinfo verbose levels
->  Higher levels include lower levels.
+
+> Higher levels include lower levels.
 
 > LEVELE:
 
@@ -551,7 +556,8 @@ LEVELE
         show terminated [by LEVEL8] with date and time
 
 ### <a name="verbose_obi2ncid"></a>obi2ncid gateway verbose levels
->  Higher levels include lower levels.
+
+> Higher levels include lower levels.
 
 > LEVEL9:
 
@@ -616,7 +622,8 @@ LEVELE
         show terminated and signal that caused it
 
 ### <a name="verbose_rn2ncid"></a>rn2ncid gateway verbose levels
->  Higher levels include lower levels.
+
+> Higher levels include lower levels.
 
 > LEVEL9:
 
@@ -679,7 +686,8 @@ LEVELE
         show NCID server disconnected if it goes away and trying to reconnect
 
 ### <a name="verbose_sip2ncid"></a>sip2ncid gateway verbose levels
->  Higher levels include lower levels.
+
+> Higher levels include lower levels.
 
 > LEVEL9:
 
@@ -784,7 +792,8 @@ LEVELE
         show pcap linktype for the device
 
 ### <a name="verbose_wc2ncid"></a>wc2ncid gateway verbose levels
->  Higher levels include lower levels.
+
+> Higher levels include lower levels.
 
 > LEVEL9:
 
@@ -855,7 +864,8 @@ LEVELE
         show Waiting for calls from <server:port>
 
 ### <a name="verbose_xdmf2ncid"></a>xdmf2ncid gateway verbose levels
->  Higher levels include lower levels.
+
+> Higher levels include lower levels.
 
 > LEVEL9:
 
@@ -939,4 +949,3 @@ LEVELE
         show signals ingnored
         show NCID server disconnected if it goes away and trying to reconnect
         show terminated and signal that caused it
-

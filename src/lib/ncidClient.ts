@@ -13,11 +13,12 @@ const FILTER_DAYS = 30;
 
 export type NcidClient = {
 	close(): void;
-	connect(): void;
+	connect(url:string): void;
 	send(text: string | INcidRequest): void;
 };
 
-export function ncidClient(url: string): NcidClient {
+export function ncidClient(): NcidClient {
+    let connectionURL: string;
 	let socket: WebSocket; // 'ws://127.0.0.1:8080/ws'
 	let currentRequest: INcidRequest | undefined = undefined;
 	const sendQ: (string | INcidRequest)[] = [];
@@ -137,9 +138,9 @@ export function ncidClient(url: string): NcidClient {
 
 	// setup the websocket connection
 	const connectToWebSocket = () => {
-		console.log('Opening webSocket to:', url);
+		console.log('Opening webSocket to:', connectionURL);
 
-		socket = new WebSocket(url); // 'ws://127.0.0.1:8080/ws'
+		socket = new WebSocket(connectionURL); // 'ws://127.0.0.1:8080/ws'
 
 		socket.addEventListener('open', () => {
 			uptime.set(new Date().toString());
@@ -161,7 +162,7 @@ export function ncidClient(url: string): NcidClient {
 			// ncidinfo.set([]);
 			// loginfo.set([]);
 
-			setTimeout(connectToWebSocket, 5000); // reconnect to websocket after 5 seconds
+			//setTimeout(connectToWebSocket, 5000); // reconnect to websocket after 5 seconds
 		});
 
 		socket.addEventListener('message', async (event: MessageEvent) => {
@@ -177,7 +178,8 @@ export function ncidClient(url: string): NcidClient {
 			clearInterval(sendInterval);
 			socket.close();
 		},
-		connect(): void {
+		connect(url: string): void {
+            connectionURL = url;
 			connectToWebSocket();
 		},
 		send(text: string | INcidRequest): void {

@@ -3,15 +3,19 @@
 	import Vscroll from '$lib/components/VScroll.svelte';
 	import { loginfo, ncidinfo, type Dictionary } from '$lib/ncidStores';
 	import { onMount } from 'svelte';
-	import { ncidClient } from '$lib/ncidClient';
+	import { ncidClient, type NcidClient } from '$lib/ncidClient';
 	import { WaitHandler } from '$lib/infoHandler';
 	import EditButton from '$lib/components/EditButton.svelte';
-	import { PUBLIC_NCID_SERVER } from '$env/static/public';
+	import { fetchConfigValue } from '$lib/client/db';
 
-	let client = ncidClient(PUBLIC_NCID_SERVER); //  'ws://192.168.1.231:3334'
+	let client = ncidClient();
 
 	onMount(() => {
-		client.connect();
+        async function open() {
+            const url = await fetchConfigValue('NCID_SERVER');
+            client.connect(url);
+        }
+        open();
 		return client.close;
 	});
 
@@ -46,8 +50,7 @@
 </svelte:head>
 
 <div class="flex text-grey-300 relative bottom-0">
-	<!-- <Vscroll width="w-1/2" height="h-[calc(100vh-80px)]"> -->
-	<Vscroll width="w-1/2" height="h-full">
+	<Vscroll width="w-1/2">
 		<table class="table table-sm table-zebra">
 			<thead>
 				<tr class="sticky top-0">

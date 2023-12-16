@@ -1,9 +1,8 @@
 import Database from 'better-sqlite3';
-import { DB_PATH } from '$env/static/private';
 import { TaskState } from '$lib/TaskState';
 import type { Task } from './types';
 
-const db = new Database(DB_PATH + 'todo.db', { verbose: console.log });
+const db = new Database('./data/todo.db', { verbose: console.log });
 
 db.pragma('journal_mode = WAL');
 db.prepare(
@@ -12,6 +11,12 @@ db.prepare(
         task TEXT NOT NULL,
         state INTEGER NOT NULL,
         itemOrder REAL NOT NULL);`
+).run();
+
+db.prepare(
+	`CREATE TABLE IF NOT EXISTS Config ( 
+        name TEXT PRIMARY KEY,
+        value TEXT NOT NULL);`
 ).run();
 
 export function getAllTasks(): Task[] {
@@ -65,4 +70,29 @@ export function renumberTasks(ids: number[]) {
 	//     update.run(itemOrder, id);
 	//     //db.exec(`UPDATE ToDo SET itemOrder = ${itemOrder} WHERE id = ${id};`);
 	// })
+}
+
+type NV = {
+    name:string;
+    value:string;
+}
+
+export function setConfig( name: string, value: string) {
+    db.prepare(
+		'UPDATE Config SET value = @value WHERE name = @name'
+	).run({name, value});
+}
+
+export function getConfig(name: string): string {
+    const row = db.prepare(
+		'SELECT value FROM Config WHERE name = @name'
+	).get({name}) as { value:string };
+
+    return row.value;
+}
+
+export function getAllConfig(): NV[] {
+    return db.prepare(
+		'SELECT name, value FROM Config'
+	).all() as NV[];
 }

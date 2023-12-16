@@ -42,5 +42,5 @@ You can preview the production build with `npm run preview`.
 Start serivce
 
 ```
-nssm NCID start
+nssm start NCID
 ```

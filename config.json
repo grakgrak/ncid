@@ -1,0 +1,7 @@
+{
+	"DB_PATH": "./data/",
+	"MQTT_SERVER": "ws://192.168.1.210:9001",
+	"NCID_SERVER": "ws://192.168.1.231:3334",
+	"VORON_PRINTER": "http://192.168.1.144",
+	"GRAPHANA_SERVER": "http://192.168.1.224:3000"
+}

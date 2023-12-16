@@ -1,12 +1,11 @@
 import type { PageServerLoad } from './$types';
-import { DB_PATH } from '$env/static/private';
 
 import { error } from '@sveltejs/kit';
 
 import Database from 'better-sqlite3';
 
-export const load = (() => {
-	const db = new Database(DB_PATH + 'superheroes.db', { verbose: console.log });
+export const load:PageServerLoad = async () => {
+	const db = new Database("./data/" + 'superheroes.db', { verbose: console.log });
 
 	const query = 'aqua';
 
@@ -18,4 +17,4 @@ export const load = (() => {
 	return {
 		post: stmt.all(`%${query}%`)
 	};
-}) satisfies PageServerLoad;
+};

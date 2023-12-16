@@ -58,7 +58,7 @@
 </div>
 
 <div class="ag-theme-alpine" style:height="300px">
-	<AgGridSvelte {gridOptions} :api={gridApi} :columnApi={gridColumnApi} />
+	<AgGridSvelte {gridOptions} {gridApi} columnApi={gridColumnApi} />
 </div>
 
 <ul>

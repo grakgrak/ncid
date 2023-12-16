@@ -1,11 +1,14 @@
 import mqtt from 'mqtt';
 import type { RequestHandler } from './$types';
+import { getConfig } from '$lib/server/db';
+
+const MQTT_SERVER = getConfig('MQTT_SERVER');
 
 export const GET = (({ url }) => {
 	const topic = url.searchParams.get('topic');
 	console.log('Open MQTT:', topic);
 
-	const client = mqtt.connect('ws://192.168.1.210:9001');
+	const client = mqtt.connect(MQTT_SERVER);
 
 	const stream = new ReadableStream({
 		start(controller) {

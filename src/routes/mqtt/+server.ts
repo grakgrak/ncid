@@ -1,7 +1,9 @@
 import mqtt from 'mqtt';
 import { error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { MQTT_SERVER } from '$env/static/private';
+import { getConfig } from '$lib/server/db';
+
+const MQTT_SERVER = getConfig('MQTT_SERVER');
 
 export const GET = (({ url }) => {
 	const topics = url.searchParams.getAll('topic');

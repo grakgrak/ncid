@@ -37,8 +37,9 @@
 	}
 </script>
 
-<header class="font-bold rounded-lg m-2 h-10 bg-gray-300">
-	<ul class="flex justify-around pt-2 text-gray-700">
+<div class="w-full h-full flex flex-col overflow-hidden" >
+<header class="font-bold rounded-lg m-2 bg-gray-300 h-11">
+	<ul class="flex justify-around pt-2 text-gray-700 px-2">
 		<li><Link href="/">Caller ID</Link></li>
 		<li><Link href="/todo">To do</Link></li>
 		<li><Link href="/graphana">Graphana</Link></li>
@@ -74,6 +75,8 @@
 </header>
 
 <slot />
+
+</div>
 
 <Modal bind:showModal>
 	<h2 slot="header" class="text-orange-500 m-3 w-44">Settings</h2>

@@ -85,12 +85,12 @@
 	<button class="btn-sm btn-primary">Add</button>
 </form>
 
-<div class="h-[calc(100vh-140px)] overflow-hidden flex flex-row">
+<div class="h-full overflow-hidden flex flex-row">
 	{#each taskList as list, idx}
-		<div class="flex flex-col w-1/3">
+		<div class="h-full flex flex-col w-1/3">
 			<h1 class="text-2xl font-bold ml-2">{columnTitles[idx]}</h1>
 			<section
-				class="bg-slate-600 p-1 m-1 h-full rounded-md overflow-y-auto scrollbar-thin scrollbar-track-rounded hover:scrollbar-thumb-slate-500 scrollbar-thumb-rounded scrollbar-thumb-gray-600 scrollbar-track-gray-200"
+				class="flex flex-col bg-slate-600 p-1 m-1 h-full rounded-md overflow-y-auto scrollbar-thin scrollbar-track-rounded hover:scrollbar-thumb-slate-500 scrollbar-thumb-rounded scrollbar-thumb-gray-600 scrollbar-track-gray-200"
 				use:dndzone={{ items: list, flipDurationMs }}
 				on:consider={(e) => handleConsider(e, idx)}
 				on:finalize={(e) => handleFinalize(e, idx)}

@@ -8,7 +8,7 @@ const MQTT_SERVER = getConfig('MQTT_SERVER');
 export const GET = (({ url }) => {
 	const topics = url.searchParams.getAll('topic');
 
-	if (topics.length === 0) throw error(404, 'Bad topic');
+	if (topics.length === 0) error(404, 'Bad topic');
 
 	console.log('Open MQTT:', topics);
 

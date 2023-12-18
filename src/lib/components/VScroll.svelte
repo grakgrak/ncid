@@ -1,10 +1,9 @@
 <script lang="ts">
 	export let width = '';
-	export let height = 'h-[calc(100vh-80px)]';
+	export let height = '';
 </script>
 
-<div
-    class="
+<div class="
     {width}
     {height}
     flex

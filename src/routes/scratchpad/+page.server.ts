@@ -10,7 +10,7 @@ export const load:PageServerLoad = async () => {
 	const query = 'aqua';
 
 	if (!query) {
-		throw error(401, 'Query (`?q=`) is required');
+		error(401, 'Query (`?q=`) is required');
 	}
 	const stmt = db.prepare('select * from superheroes where name like ?');
 

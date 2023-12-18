@@ -23,7 +23,9 @@
 		const text: string = item.NMBR + (item.Topic === 'HUPLOG:' ? ' (hangup)' : '');
 		if (item.NAME == 'NO NAME')
 			return `<a class="text-red-500 hover:text-teal-500" target="_whocalled_" href="https://who-called.co.uk/Number/${item.NMBR}">${text}</a>`;
-		return text;
+
+        const count = $ncidinfo.filter((i) => i.NMBR === item.NMBR).length;
+		return text + ` (${count})`;
 	};
 
 	const formatDateTime = (date: string, time: string) =>
@@ -49,11 +51,11 @@
 	<meta name="description" content="Caller ID" />
 </svelte:head>
 
-<div class="flex text-grey-300 relative bottom-0">
-	<Vscroll width="w-1/2">
+<div class="w-full h-full flex overflow-hidden m-1">
+    <Vscroll width="w-1/2">
 		<table class="table table-sm table-zebra">
-			<thead>
-				<tr class="sticky top-0">
+			<thead class="sticky top-0 z-10 bg-slate-700 rounded-md">
+				<tr>
 					<th class="w-10" />
 					<th class="text-left p-2">Date Time</th>
 					<th class="text-left p-2">Number</th>
@@ -61,7 +63,7 @@
 					<th class="text-left p-2 w-28">ID</th>
 				</tr>
 			</thead>
-			<tbody>
+                <tbody>
 				{#each $ncidinfo as data (data.ID)}
 					<tr class="hover">
 						<td class="pt-0 pb-0">
@@ -79,18 +81,18 @@
 				{/each}
 			</tbody>
 		</table>
-	</Vscroll>
-	<Vscroll width="w-1/2" height="h-[calc(100vh-80px)]">
+    </Vscroll>
+	<Vscroll width="w-1/2" height="h-full">
 		<div>
 			<button
-				class="btn-sm btn-secondary rounded"
+				class="btn btn-sm btn-secondary rounded"
 				on:click={() => client.send(new WaitHandler('REQ: REREAD\n', '250'))}>Reread</button
 			>
 			<button
-				class="btn-sm btn-accent rounded"
+				class="btn btn-sm btn-neutral rounded"
 				on:click={() => client.send(new WaitHandler('REQ: RELOAD\n', '410'))}>Reload</button
 			>
-			<button class="btn-sm btn-accent rounded" on:click={() => loginfo.set([])}>Clear Log</button>
+			<button class="btn btn-sm btn-neutral rounded" on:click={() => loginfo.set([])}>Clear Log</button>
 		</div>
 		<table class="mt-3">
 			<tbody>

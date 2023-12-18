@@ -42,5 +42,11 @@ You can preview the production build with `npm run preview`.
 Start serivce
 
 ```
+nssm install NCID - run
+    cmd = npm.cmd
+    start = ncid install folder
+    command line =  run preview
+
 nssm start NCID
+nssm stop NCID
 ```

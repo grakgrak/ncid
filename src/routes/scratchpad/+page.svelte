@@ -6,7 +6,7 @@
 	import 'ag-grid-community/styles/ag-grid.css'; // Core grid CSS, always needed
 	import 'ag-grid-community/styles/ag-theme-alpine.css'; // Optional theme CSS
 	import AgGridSvelte from 'ag-grid-svelte';
-	import type { ColumnApi, GridApi } from 'ag-grid-community';
+	import type { ColDef, ColumnApi, GridApi } from 'ag-grid-community';
 
 	export let data: PageData;
 
@@ -26,7 +26,7 @@
 		{ make: 'Porsche', model: '911', price: 72000 }
 	];
 
-	const columnDefs = [
+	const columnDefs: ColDef[] = [
 		{ headerName: 'Make', field: 'make' },
 		{ headerName: 'Model', field: 'model' },
 		{ headerName: 'Price', field: 'price' }
@@ -53,7 +53,7 @@
 </svelte:head>
 
 <div class="p-2">
-	{counter}<button class="btn-primary btn rounded ml-2" on:click={handleClick}>click</button>
+	{counter}<button class="btn btn-primary rounded ml-2" on:click={handleClick}>click</button>
 	{$timestamp}
 </div>
 

@@ -47,7 +47,7 @@
 </script>
 
 <button
-	class="btn-xs btn-primary rounded w-8"
+	class="btn btn-xs btn-primary rounded w-8 text-white"
 	class:bg-black={data.status === 'black number'}
 	on:click={() => edit(data)}
 >
@@ -78,9 +78,9 @@
 			class="pl-1 p-2 m-1 rounded"
 			bind:value={aliasText}
 		/>
-		<button type="submit" class="btn-sm btn-primary m-1 rounded" on:click={alias}>Save Alias</button
+		<button type="submit" class="btn btn-sm btn-primary m-1 rounded" on:click={alias}>Save Alias</button
 		>
-		<button type="submit" class="btn-sm btn-primary m-1 rounded" on:click={blacklist}
+		<button type="submit" class="btn btn-sm btn-primary m-1 rounded" on:click={blacklist}
 			>Save Blacklist</button
 		>
 	</form>

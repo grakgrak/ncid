@@ -1,12 +1,12 @@
 import { writable } from 'svelte/store';
 
 export interface Dictionary<T> {
-	[Key: string]: T;
+    [Key: string]: T;
 }
 
 export interface INcidRequest {
-	getRequest: () => string;
-	handler(text: string): { suppress: boolean; isFinished: boolean };
+    getRequest: () => string;
+    handler(text: string): { suppress: boolean; isFinished: boolean };
 }
 
 export const loginfo = writable<string[]>([]);

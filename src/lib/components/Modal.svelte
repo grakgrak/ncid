@@ -1,24 +1,32 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
 	import '../../app.css';
 
-	export let showModal = false; // boolean
+	type Props = {
+		showModal: boolean;
+		header?: Snippet;
+		children: any;
+	};
 
+	let { showModal = $bindable(false), header, children }: Props = $props();
 	let dialog: HTMLDialogElement;
 
-	$: if (dialog && showModal) dialog.showModal();
+	$effect(() => {
+		if (dialog && showModal) dialog.showModal();
+	});
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <dialog
 	class="p-5 rounded-lg"
 	bind:this={dialog}
-	on:close={() => (showModal = false)}
-	on:click|self={() => dialog.close()}
+	onclose={() => (showModal = false)}
+	onclick={() => dialog.close()}
 >
-	<div on:click|stopPropagation>
+	<div>
 		<div
 			class="absolute m-1 right-0 top-0 w-5 focus:outline-none hover:bg-neutral-content rounded-sm"
-			on:click|stopPropagation={() => dialog.close()}
+			onclick={(ev:Event) => {ev.stopPropagation(); dialog.close()}}
 		>
 			<svg
 				width="20"
@@ -34,9 +42,11 @@
 				/>
 			</svg>
 		</div>
-		<slot name="header" />
+		{#if header}
+			{@render header()}
+		{/if}
 		<hr />
-		<slot />
+		{@render children()}
 	</div>
 </dialog>
 

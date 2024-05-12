@@ -78,7 +78,8 @@
 			class="pl-1 p-2 m-1 rounded"
 			bind:value={aliasText}
 		/>
-		<button type="submit" class="btn btn-sm btn-primary m-1 rounded" on:click={alias}>Save Alias</button
+		<button type="submit" class="btn btn-sm btn-primary m-1 rounded" on:click={alias}
+			>Save Alias</button
 		>
 		<button type="submit" class="btn btn-sm btn-primary m-1 rounded" on:click={blacklist}
 			>Save Blacklist</button

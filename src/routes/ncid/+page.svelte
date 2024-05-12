@@ -1,5 +1,4 @@
 <script lang="ts">
-	import '../app.css';
 	import Vscroll from '$lib/components/VScroll.svelte';
 	import { loginfo, ncidinfo, type Dictionary } from '$lib/ncidStores';
 	import { onMount } from 'svelte';
@@ -8,23 +7,23 @@
 	import EditButton from '$lib/components/EditButton.svelte';
 	import { fetchConfigValue } from '$lib/client/db';
 
-	let client = ncidClient();
+	const client = ncidClient();
 
 	onMount(() => {
-        async function open() {
-            const url = await fetchConfigValue('NCID_SERVER');
-            client.connect(url);
-        }
-        open();
+		async function open() {
+			const url = await fetchConfigValue('NCID_SERVER');
+			client.connect(url);
+		}
+		open();
 		return client.close;
 	});
 
 	const getLink = (item: Dictionary<string>) => {
 		const text: string = item.NMBR + (item.Topic === 'HUPLOG:' ? ' (hangup)' : '');
-		if (item.NAME == 'NO NAME')
+		if (item.NAME === 'NO NAME' || item.NAME === 'OUT-OF-AREA')
 			return `<a class="text-red-500 hover:text-teal-500" target="_whocalled_" href="https://who-called.co.uk/Number/${item.NMBR}">${text}</a>`;
 
-        const count = $ncidinfo.filter((i) => i.NMBR === item.NMBR).length;
+		const count = $ncidinfo.filter((i) => i.NMBR === item.NMBR).length;
 		return text + ` (${count})`;
 	};
 
@@ -52,18 +51,18 @@
 </svelte:head>
 
 <div class="w-full h-full flex overflow-hidden m-1">
-    <Vscroll width="w-1/2">
+	<Vscroll width="w-1/2">
 		<table class="table table-sm table-zebra">
 			<thead class="sticky top-0 z-10 bg-slate-700 rounded-md">
 				<tr>
-					<th class="w-10" />
+					<th class="w-10"></th>
 					<th class="text-left p-2">Date Time</th>
 					<th class="text-left p-2">Number</th>
 					<th class="text-left p-2">Alias</th>
 					<th class="text-left p-2 w-28">ID</th>
 				</tr>
 			</thead>
-                <tbody>
+			<tbody>
 				{#each $ncidinfo as data (data.ID)}
 					<tr class="hover">
 						<td class="pt-0 pb-0">
@@ -72,7 +71,7 @@
 						<td class="text-xs pl-2">{formatDateTime(data.DATE, data.TIME)}</td>
 						<td class="text-xs pl-2">{@html getLink(data)}</td>
 						<td
-							class:text-red-500={data.NAME === 'NO NAME'}
+							class:text-red-500={data.NAME === 'NO NAME' || data.NAME === 'OUT-OF-AREA'}
 							class="tooltip tooltip-bottom tooltip-accent text-xs pl-2"
 							data-tip={tooltipData(data)}>{data.NAME}</td
 						>
@@ -81,7 +80,7 @@
 				{/each}
 			</tbody>
 		</table>
-    </Vscroll>
+	</Vscroll>
 	<Vscroll width="w-1/2" height="h-full">
 		<div>
 			<button
@@ -92,7 +91,9 @@
 				class="btn btn-sm btn-neutral rounded"
 				on:click={() => client.send(new WaitHandler('REQ: RELOAD\n', '410'))}>Reload</button
 			>
-			<button class="btn btn-sm btn-neutral rounded" on:click={() => loginfo.set([])}>Clear Log</button>
+			<button class="btn btn-sm btn-neutral rounded" on:click={() => loginfo.set([])}
+				>Clear Log</button
+			>
 		</div>
 		<table class="mt-3">
 			<tbody>

@@ -36,8 +36,11 @@ export class InfoHandler implements INcidRequest {
                 const alias = this.infoLines[0].slice(12);
 
                 // update the cached status
-                if (status === 'black number')
-                    ncidStatusCache[nmbr] = status;
+                if (status === 'black number') {
+                    const cache = get(ncidStatusCache);
+                    cache[nmbr] = status;
+                    ncidStatusCache.set(cache);
+                }
 
                 ncidinfo.update((items) => {
                     const newItems = items.map((i) => {

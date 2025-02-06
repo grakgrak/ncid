@@ -3,16 +3,10 @@
 	import { timestamp } from '../../lib/store';
 	import '../../app.css';
 	import type { PageData } from './$types';
-	import 'ag-grid-community/styles/ag-grid.css'; // Core grid CSS, always needed
-	import 'ag-grid-community/styles/ag-theme-alpine.css'; // Optional theme CSS
-	import AgGridSvelte from 'ag-grid-svelte';
-	import type { ColDef, ColumnApi, GridApi } from 'ag-grid-community';
 
 	export let data: PageData;
 
 	let counter = 1;
-	let gridApi: GridApi;
-	let gridColumnApi: ColumnApi;
 
 	const rowData = [
 		{ make: 'Toyota', model: 'Celica', price: 35000 },
@@ -26,21 +20,21 @@
 		{ make: 'Porsche', model: '911', price: 72000 }
 	];
 
-	const columnDefs: ColDef[] = [
-		{ headerName: 'Make', field: 'make' },
-		{ headerName: 'Model', field: 'model' },
-		{ headerName: 'Price', field: 'price' }
-	];
+	// const columnDefs: ColDef[] = [
+	// 	{ headerName: 'Make', field: 'make' },
+	// 	{ headerName: 'Model', field: 'model' },
+	// 	{ headerName: 'Price', field: 'price' }
+	// ];
 
-	const gridOptions = {
-		columnDefs: columnDefs,
-		rowData: rowData,
+	// const gridOptions = {
+	// 	columnDefs: columnDefs,
+	// 	rowData: rowData,
 
-		defaultColDef: {
-			resizable: true,
-			sortable: true
-		}
-	};
+	// 	defaultColDef: {
+	// 		resizable: true,
+	// 		sortable: true
+	// 	}
+	// };
 
 	const handleClick = () => {
 		counter = counter + 1;
@@ -57,12 +51,12 @@
 	{$timestamp}
 </div>
 
-<div class="ag-theme-alpine" style:height="300px">
+<!-- <div class="ag-theme-alpine" style:height="300px">
 	<AgGridSvelte {gridOptions} {gridApi} columnApi={gridColumnApi} />
-</div>
+</div> -->
 
-<ul>
+<!-- <ul>
 	{#each data.post as d}
 		<li class="text-sm">{d.name} {d.hair_color} {d.appearance_count}</li>
 	{/each}
-</ul>
+</ul> -->

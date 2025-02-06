@@ -1,26 +1,25 @@
 <script lang="ts">
 	import Vscroll from '$lib/components/VScroll.svelte';
 	import { loginfo, ncidinfo, type Dictionary } from '$lib/ncidStores';
-	import { onMount } from 'svelte';
 	import { ncidClient, type NcidClient } from '$lib/ncidClient';
 	import { WaitHandler } from '$lib/infoHandler';
 	import EditButton from '$lib/components/EditButton.svelte';
 	import { fetchConfigValue } from '$lib/client/db';
 
-	const client = ncidClient();
+	const client = $state(ncidClient());
 
-	onMount(() => {
-		async function open() {
+	$effect(() => {
+		const init = async () => {
 			const url = await fetchConfigValue('NCID_SERVER');
 			client.connect(url);
-		}
-		open();
-		return client.close;
+		};
+		init();
+		return () => client.close();
 	});
 
 	const getLink = (item: Dictionary<string>) => {
 		const text: string = item.NMBR + (item.Topic === 'HUPLOG:' ? ' (hangup)' : '');
-		if (item.NAME === 'NO NAME' || item.NAME === 'OUT-OF-AREA')
+		if (item.NAME === 'NO NAME' || item.NAME === 'OUT-OF-AREA' || item.NAME === 'Nuisance ?')
 			return `<a class="text-red-500 hover:text-teal-500" target="_whocalled_" href="https://who-called.co.uk/Number/${item.NMBR}">${text}</a>`;
 
 		const count = $ncidinfo.filter((i) => i.NMBR === item.NMBR).length;
@@ -33,16 +32,6 @@
 	const tooltipData = (item: Dictionary<string>) => {
 		return 'Hi ' + item.NAME;
 	};
-
-	// let sortedData = (key: string, asc: boolean) : Dictionary<string>[] => {
-	//     const modifier = asc ? 1 : -1;
-	//     return $ncidinfo.sort((a,b) => {
-	//         const left = String(a[key]);
-	//         const right = String(b[key]);
-	//         const res = (left === right) ? 0 : (left < right) ? -1 : 1;
-	//         return res * modifier;
-	//     });
-	// };
 </script>
 
 <svelte:head>
@@ -50,59 +39,60 @@
 	<meta name="description" content="Caller ID" />
 </svelte:head>
 
-<div class="w-full h-full flex overflow-hidden m-1">
-	<Vscroll width="w-1/2">
-		<table class="table table-sm table-zebra">
-			<thead class="sticky top-0 z-10 bg-slate-700 rounded-md">
-				<tr>
-					<th class="w-10"></th>
-					<th class="text-left p-2">Date Time</th>
-					<th class="text-left p-2">Number</th>
-					<th class="text-left p-2">Alias</th>
-					<th class="text-left p-2 w-28">ID</th>
-				</tr>
-			</thead>
-			<tbody>
-				{#each $ncidinfo as data (data.ID)}
-					<tr class="hover">
-						<td class="pt-0 pb-0">
-							<EditButton {client} {data} />
-						</td>
-						<td class="text-xs pl-2">{formatDateTime(data.DATE, data.TIME)}</td>
-						<td class="text-xs pl-2">{@html getLink(data)}</td>
-						<td
-							class:text-red-500={data.NAME === 'NO NAME' || data.NAME === 'OUT-OF-AREA'}
-							class="tooltip tooltip-bottom tooltip-accent text-xs pl-2"
-							data-tip={tooltipData(data)}>{data.NAME}</td
-						>
-						<td class="text-xs pl-2">{data.ID}</td>
-					</tr>
-				{/each}
-			</tbody>
-		</table>
-	</Vscroll>
-	<Vscroll width="w-1/2" height="h-full">
-		<div>
-			<button
-				class="btn btn-sm btn-secondary rounded"
-				on:click={() => client.send(new WaitHandler('REQ: REREAD\n', '250'))}>Reread</button
-			>
-			<button
-				class="btn btn-sm btn-neutral rounded"
-				on:click={() => client.send(new WaitHandler('REQ: RELOAD\n', '410'))}>Reload</button
-			>
-			<button class="btn btn-sm btn-neutral rounded" on:click={() => loginfo.set([])}
-				>Clear Log</button
-			>
-		</div>
-		<table class="mt-3">
-			<tbody>
-				{#each $loginfo as log}
+<div class="flex flex-col h-full">
+	<div class="flex flex-row">
+		<Vscroll width="w-1/2" height="h-[calc(100vh-6rem)]">
+			<table class="table table-xs w-full">
+				<thead class="sticky top-0 z-10 bg-slate-700 rounded-md">
 					<tr>
-						<td class="text-sm">{log}</td>
+						<th></th>
+						<th>Date Time</th>
+						<th>Number</th>
+						<th>Alias</th>
+						<th>ID</th>
 					</tr>
-				{/each}
-			</tbody>
-		</table>
-	</Vscroll>
+				</thead>
+				<tbody>
+					{#each $ncidinfo as item}
+						<tr>
+							<td class="pt-1 pb-1"><EditButton {client} data={item} /></td>
+							<td>{formatDateTime(item.DATE, item.TIME)}</td>
+							<td>{@html getLink(item)}</td>
+							<td
+								class:text-red-500={item.NAME === 'NO NAME' ||
+									item.NAME === 'OUT-OF-AREA' ||
+									item.NAME === 'Nuisance ?'}
+								class="tooltip tooltip-bottom tooltip-accent">{item.NAME}</td
+							>
+							<td>{item.ID}</td>
+						</tr>
+					{/each}
+				</tbody>
+			</table>
+		</Vscroll>
+		<Vscroll width="w-1/2" height="h-[calc(100vh-6rem)]">
+			<div>
+				<button
+					class="btn btn-sm btn-secondary rounded"
+					onclick={() => client.send(new WaitHandler('REQ: REREAD\n', '250'))}>Reread</button
+				>
+				<button
+					class="btn btn-sm btn-neutral rounded"
+					onclick={() => client.send(new WaitHandler('REQ: RELOAD\n', '410'))}>Reload</button
+				>
+				<button class="btn btn-sm btn-neutral rounded" onclick={() => loginfo.set([])}
+					>Clear Log</button
+				>
+			</div>
+			<table class="mt-3">
+				<tbody>
+					{#each $loginfo as item}
+						<tr>
+							<td class="text-sm">{item}</td>
+						</tr>
+					{/each}
+				</tbody>
+			</table>
+		</Vscroll>
+	</div>
 </div>

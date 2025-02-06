@@ -21,8 +21,6 @@
 		"@types/node": "^20.12.8",
 		"@typescript-eslint/eslint-plugin": "^7.8.0",
 		"@typescript-eslint/parser": "^7.8.0",
-		"ag-grid-community": "^31.3.1",
-		"ag-grid-svelte": "^0.3.0",
 		"autoprefixer": "^10.4.19",
 		"better-sqlite3": "^9.6.0",
 		"daisyui": "^4.10.5",

@@ -7,6 +7,7 @@ import {
 } from './ncidStores';
 import { InfoHandler } from './infoHandler';
 import { maxRows, uptime } from './store';
+import { get } from 'svelte/store';
 
 const FILTER_DAYS = 30;
 
@@ -87,7 +88,7 @@ export function ncidClient(): NcidClient {
             info.ID = date.slice(4, 8) + date.slice(0, 4) + info.TIME + info.NMBR;
 
             // console.log('info:', info, text)
-            const maxRowCount = maxRows;
+            const maxRowCount = get(maxRows);
             ncidinfo.update((items) => {
                 const newItems = items.filter((item) => item.ID != info.ID);
 
@@ -100,10 +101,10 @@ export function ncidClient(): NcidClient {
                 return newItems;
             });
 
-            info.status = ncidStatusCache[info.NMBR];
+            info.status = get(ncidStatusCache)[info.NMBR];
 
             // add the fetch info request to the queue but only for NO NAME or OUT-OF-AREA rows
-            if ((info.NAME === 'NO NAME' || info.NAME === 'OUT-OF-AREA') && info.status === undefined)
+            if ((info.NAME === 'NO NAME' || info.NAME === 'OUT-OF-AREA' || info.NAME === 'Nuisance ?') && info.status === undefined)
                 sendQ.push(new InfoHandler(info.ID));
 
             return true;

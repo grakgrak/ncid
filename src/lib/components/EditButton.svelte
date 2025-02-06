@@ -4,31 +4,34 @@
 	import { WaitHandler } from '../infoHandler';
 	import type { NcidClient } from '$lib/ncidClient';
 
-	export let data: Dictionary<string>;
-	export let client: NcidClient;
+	let { data, client } = $props<{
+		data: Dictionary<string>;
+		client: NcidClient;
+	}>();
 
-	let aliasText = '';
-	let showModal = false;
+	let aliasText = $state('');
+	let showModal = $state(false);
 
 	const edit = async (item: Dictionary<string>) => {
 		client.send(new WaitHandler(`REQ: INFO ${item.NMBR}&&${item.NAME}\n`, '411'));
-		$selected = item;
+		selected.set(item);  
 		aliasText = item.NAME;
 		showModal = true;
 	};
 
 	const alias = async () => {
-		if ($selected.alias === 'NOALIAS')
+		const selectedValue = $selected;  
+		if (selectedValue.alias === 'NOALIAS')
 			client.send(
 				new WaitHandler(
-					`REQ: alias add "${$selected.NMBR}&&${aliasText}" "NAMEDEP&&${$selected.NAME}"\n`,
+					`REQ: alias add "${selectedValue.NMBR}&&${aliasText}" "NAMEDEP&&${selectedValue.NAME}"\n`,
 					'411'
 				)
 			);
 		else
 			client.send(
 				new WaitHandler(
-					`REQ: alias modify "${$selected.NMBR}&&${aliasText}" "NAMEDEP&&${$selected.NAME}"\n`,
+					`REQ: alias modify "${selectedValue.NMBR}&&${aliasText}" "NAMEDEP&&${selectedValue.NAME}"\n`,
 					'411'
 				)
 			);
@@ -40,7 +43,8 @@
 	};
 
 	const blacklist = () => {
-		client.send(new WaitHandler(`REQ: black add "${$selected.NMBR}" ""\n`, '411'));
+		const selectedValue = $selected;  
+		client.send(new WaitHandler(`REQ: black add "${selectedValue.NMBR}" ""\n`, '411'));
 		client.send(new WaitHandler('REQ: RELOAD\n', '410'));
 		client.send(new WaitHandler('REQ: REREAD\n', '250'));
 	};
@@ -49,7 +53,7 @@
 <button
 	class="btn btn-xs btn-primary rounded w-8 text-white"
 	class:bg-black={data.status === 'black number'}
-	on:click={() => edit(data)}
+	onclick={() => edit(data)}
 >
 	<svg
 		width="16"
@@ -78,10 +82,10 @@
 			class="pl-1 p-2 m-1 rounded"
 			bind:value={aliasText}
 		/>
-		<button type="submit" class="btn btn-sm btn-primary m-1 rounded" on:click={alias}
+		<button type="submit" class="btn btn-sm btn-primary m-1 rounded" onclick={alias}
 			>Save Alias</button
 		>
-		<button type="submit" class="btn btn-sm btn-primary m-1 rounded" on:click={blacklist}
+		<button type="submit" class="btn btn-sm btn-primary m-1 rounded" onclick={blacklist}
 			>Save Blacklist</button
 		>
 	</form>

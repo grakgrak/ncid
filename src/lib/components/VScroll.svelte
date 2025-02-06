@@ -1,6 +1,10 @@
 <script lang="ts">
-	export let width = '';
-	export let height = '';
+	type Props = {
+		width?: string;
+		height?: string;
+		children: any;
+	};
+	let { width = '', height = '', children }: Props = $props();
 </script>
 
 <div class="
@@ -18,5 +22,5 @@
     overflow-auto
     vscroll"
 >
-	<slot />
+	{@render children()}
 </div>

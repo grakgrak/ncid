@@ -16,7 +16,6 @@
 	});
 </script>
 
-<!-- svelte-ignore a11y-click-events-have-key-events -->
 <dialog
 	class="p-5 rounded-lg"
 	bind:this={dialog}
@@ -24,6 +23,8 @@
 	onclick={() => dialog.close()}
 >
 	<div>
+		<!-- svelte-ignore a11y_click_events_have_key_events -->
+		<!-- svelte-ignore a11y_no_static_element_interactions -->
 		<div
 			class="absolute m-1 right-0 top-0 w-5 focus:outline-none hover:bg-neutral-content rounded-sm"
 			onclick={(ev:Event) => {ev.stopPropagation(); dialog.close()}}

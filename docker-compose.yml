@@ -1,0 +1,8 @@
+services:
+  ncid:
+    image: ncid
+    ports:
+      - '3001:3000'
+    environment:
+      ORIGIN: 'http://localhost:3000'
+    restart: unless-stopped

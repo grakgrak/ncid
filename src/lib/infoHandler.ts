@@ -24,7 +24,9 @@ export class InfoHandler implements INcidRequest {
             this.infoLines.length = 0;
             return { suppress: true, isFinished: false };
         }
-        if (line.startsWith('411 ')) return { suppress: true, isFinished: true };
+        if (line.startsWith('411 ')) {
+            return { suppress: true, isFinished: true };
+        }
 
         // process the info messages
         if (line.startsWith('INFO: ')) {
@@ -36,7 +38,7 @@ export class InfoHandler implements INcidRequest {
                 const alias = this.infoLines[0].slice(12);
 
                 // update the cached status
-                if (status === 'black number') {
+                if (status === 'black number' || status === 'black name') {
                     const cache = get(ncidStatusCache);
                     cache[nmbr] = status;
                     ncidStatusCache.set(cache);

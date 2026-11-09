@@ -6,10 +6,11 @@
     import EditButton from '$lib/components/EditButton.svelte';
     import { ncidGlobal } from '$lib/ncidState.svelte';
     import { NCID_SERVER } from '$lib/config';
+    import { onMount } from 'svelte';
 
     const client = $state(ncidClient());
 
-    $effect(() => {
+    onMount(() => {
         const init = async () => {
             const url = NCID_SERVER;
             client.connect(url);
@@ -42,62 +43,58 @@
     <meta name="description" content="Caller ID" />
 </svelte:head>
 
-<div class="flex flex-col h-full">
-    <div class="flex flex-row">
-        <Vscroll width="w-1/2" height="h-[calc(100vh-6rem)]">
-            <table class="table table-xs w-full">
-                <thead class="sticky top-0 z-10 bg-slate-700 rounded-md">
+<div class="flex flex-row h-full">
+    <Vscroll width="w-1/2" height="h-full">
+        <table class="table table-xs w-full">
+            <thead class="sticky top-0 z-10 bg-slate-700 rounded-md">
+                <tr>
+                    <th></th>
+                    <th>Date Time</th>
+                    <th>Number</th>
+                    <th>Alias</th>
+                    <th>ID</th>
+                </tr>
+            </thead>
+            <tbody>
+                {#each $ncidinfo as item}
                     <tr>
-                        <th></th>
-                        <th>Date Time</th>
-                        <th>Number</th>
-                        <th>Alias</th>
-                        <th>ID</th>
+                        <td><EditButton {client} data={item} /></td>
+                        <td>{formatDateTime(item.DATE, item.TIME)}</td>
+                        <td>{@html getLink(item)}</td>
+                        <td
+                            class:text-red-500={item.NAME === 'NO NAME' ||
+                                item.NAME === 'OUT-OF-AREA' ||
+                                item.NAME === 'Nuisance ?'}
+                            class="tooltip tooltip-bottom tooltip-accent">{item.NAME}</td
+                        >
+                        <td>{item.ID}</td>
                     </tr>
-                </thead>
-                <tbody>
-                    {#each $ncidinfo as item}
-                        <tr>
-                            <td><EditButton {client} data={item} /></td>
-                            <td>{formatDateTime(item.DATE, item.TIME)}</td>
-                            <td>{@html getLink(item)}</td>
-                            <td
-                                class:text-red-500={item.NAME === 'NO NAME' ||
-                                    item.NAME === 'OUT-OF-AREA' ||
-                                    item.NAME === 'Nuisance ?'}
-                                class="tooltip tooltip-bottom tooltip-accent">{item.NAME}</td
-                            >
-                            <td>{item.ID}</td>
-                        </tr>
-                    {/each}
-                </tbody>
-            </table>
-        </Vscroll>
-        <Vscroll width="w-1/2" height="h-[calc(100vh-6rem)]">
-            <div>
-                <button
-                    class="btn btn-sm btn-secondary rounded"
-                    onclick={() => client.send(new WaitHandler('REQ: REREAD\n', '250'))}
-                    >Reread</button
-                >
-                <button
-                    class="btn btn-sm btn-neutral rounded"
-                    onclick={() => client.send(new WaitHandler('REQ: RELOAD\n', '410'))}
-                    >Reload</button
-                >
-                <button class="btn btn-sm btn-neutral rounded" onclick={() => loginfo.set([])}
-                    >Clear Log</button
-                >
-            </div>
-            <table class="mt-3">
-                <tbody>
-                    {#each $loginfo as item}
-                        <tr>
-                            <td class="text-sm">{item}</td>
-                        </tr>
-                    {/each}
-                </tbody>
-            </table>
-        </Vscroll>
-    </div>
+                {/each}
+            </tbody>
+        </table>
+    </Vscroll>
+    <Vscroll width="w-1/2" height="h-full">
+        <div>
+            <button
+                class="btn btn-sm btn-secondary rounded"
+                onclick={() => client.send(new WaitHandler('REQ: REREAD\n', '250'))}>Reread</button
+            >
+            <button
+                class="btn btn-sm btn-neutral rounded"
+                onclick={() => client.send(new WaitHandler('REQ: RELOAD\n', '410'))}>Reload</button
+            >
+            <button class="btn btn-sm btn-neutral rounded" onclick={() => loginfo.set([])}
+                >Clear Log</button
+            >
+        </div>
+        <table class="mt-3">
+            <tbody>
+                {#each $loginfo as item}
+                    <tr>
+                        <td class="text-sm">{item}</td>
+                    </tr>
+                {/each}
+            </tbody>
+        </table>
+    </Vscroll>
 </div>

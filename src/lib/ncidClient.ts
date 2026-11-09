@@ -92,7 +92,8 @@ export function ncidClient(): NcidClient {
             ncidinfo.update((items) => {
                 const newItems = items.filter((item) => item.ID != info.ID);
 
-                if (isCurrentDate(info)) newItems.unshift(info); // add in the new row
+                //if (isCurrentDate(info)) 
+                    newItems.unshift(info); // add in the new row
 
                 while (newItems.length > maxRowCount)
                     // limit the length of the list
@@ -117,7 +118,6 @@ export function ncidClient(): NcidClient {
         // the received data may contain multiple lines
         text.split('\n').forEach((t) => {
             const line = t.trim();
-
             if (line.length > 0) {
                 if (ncidinfo_handler(line)) return;
 

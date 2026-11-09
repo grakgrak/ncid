@@ -11,6 +11,7 @@
 
     let aliasText = $state('');
     let showModal = $state(false);
+    let blacklisted = $derived(data.status === 'black number' || data.status === 'black name');
 
     const edit = async (item: Dictionary<string>) => {
         await client.send(new WaitHandler(`REQ: INFO ${item.NMBR}&&${item.NAME}\n`, '411'));
@@ -52,8 +53,9 @@
 
 <!-- svelte-ignore a11y_consider_explicit_label -->
 <button
-    class="btn btn-sm bg-slate-700 rounded w-8 text-white"
-    class:bg-black={data.status === 'black number' || data.status === 'black name'}
+    class="btn btn-sm rounded w-8 text-white border border-gray-500"
+    class:bg-black={blacklisted}
+    class:bg-slate-700={!blacklisted}
     onclick={() => edit(data)}
 >
     <svg

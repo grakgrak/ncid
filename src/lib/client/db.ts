@@ -4,6 +4,7 @@ export async function fetchAllConfig() {
     const resp = await fetch('/api/getAllConfig');
     if (resp.ok) {
         const json = await resp.json();
+        console.log('fetchAllConfig', json.body);
         return json.body;
     }
     return [];

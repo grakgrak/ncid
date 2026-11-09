@@ -74,7 +74,7 @@
     </div>
 </Modal>
 
-<div class="w-full h-full flex flex-col overflow-hidden">
+<div class="w-full h-full flex flex-col">
     <header class="font-bold rounded-lg m-2 bg-gray-300 h-11">
         <ul class="flex justify-around pt-2 text-gray-700 px-2">
             <li><Link href="/ncid">Caller ID</Link></li>
@@ -109,6 +109,8 @@
         </ul>
     </header>
 
-    {@render children()}
+    <div class="flex flex-col h-full w-full overflow-hidden">
+        {@render children()}
+    </div>
     <!-- <slot /> -->
 </div>

@@ -1,17 +1,21 @@
 <script lang="ts">
-	type Props = {
-		width?: string;
-		height?: string;
-		children: any;
-	};
-	let { width = '', height = '', children }: Props = $props();
+    import type { Snippet } from 'svelte';
+
+    type Props = {
+        width?: string;
+        height?: string;
+        children: Snippet;
+    };
+    let { width = '', height = '', children }: Props = $props();
 </script>
 
-<div class="
+<div
+    class="
     {width}
     {height}
     flex
     flex-col
+    h-full
     m-1
     scrollbar-thin
     scrollbar-thumb-rounded
@@ -22,5 +26,5 @@
     overflow-auto
     vscroll"
 >
-	{@render children()}
+    {@render children()}
 </div>
